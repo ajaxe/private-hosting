@@ -5,6 +5,18 @@ services:
     image: registry:2
     restart: "always"
     deploy:
+      labels:
+        - "traefik.docker.network=functions"
+        - "traefik.enable=true"
+        - "traefik.domain=docker-registry.apogee-dev.com"
+        - "traefik.frontend.rule=Host:docker-registry.apogee-dev.com"
+        - "traefik.secured.frontend.auth.basic.usersFile=/htpasswd"
+        - "traefik.frontend.ratelimit.extractorFunc=client.ip"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+        - "traefik.port=5000"
+        - "traefik.protocol=http"
       mode: replicated
       placement:
         constraints:
@@ -27,6 +39,7 @@ services:
       - "traefik.enable=true"
       - "traefik.domain=docker-registry.apogee-dev.com"
       - "traefik.frontend.rule=Host:docker-registry.apogee-dev.com"
+      - "traefik.secured.frontend.auth.basic.usersFile=/htpasswd"
       - "traefik.frontend.ratelimit.extractorFunc=client.ip"
       - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
       - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
