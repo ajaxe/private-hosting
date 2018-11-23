@@ -1,0 +1,40 @@
+version: "3.3"
+
+services:
+  registry:
+    image: registry:2
+    restart: "always"
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.role==manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    # no need to expose ports within a swarm
+    #expose:
+    #  - "5000"
+    volumes:
+     - "/mnt/ssd/projects/docker-registry/storage:/var/lib/registry"
+    networks:
+      - functions
+    labels:
+      - "traefik.docker.network=functions"
+      - "traefik.enable=true"
+      - "traefik.domain=docker-registry.apogee-dev.com"
+      - "traefik.frontend.rule=Host:docker-registry.apogee-dev.com"
+      - "traefik.frontend.ratelimit.extractorFunc=client.ip"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+      - "traefik.port=5000"
+      - "traefik.protocol=http"
+    container_name: "docker_registry"
+
+networks:
+  functions:
+    external: true
