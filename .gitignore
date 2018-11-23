@@ -2,3 +2,5 @@ acme.json
 *.sample
 logs/
 storage/
+.htpasswd
+htpasswd

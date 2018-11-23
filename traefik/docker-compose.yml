@@ -25,8 +25,9 @@ services:
       - functions
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
-      - /mnt/ssd/projects/traefik-local/traefik.toml:/traefik.toml
-      - /mnt/ssd/projects/traefik-local/acme.json:/acme.json
+      - /mnt/ssd/projects/private-hosting/traefik/traefik.toml:/traefik.toml
+      - /mnt/ssd/projects/private-hosting/traefik/acme.json:/acme.json
+      - /mnt/ssd/projects/private-hosting/htpasswd:/htpasswd
     container_name: traefik # not supported in swarm mode
 
 networks:
