@@ -3,25 +3,32 @@ version: '3'
 services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
-    image: traefik  # The official Traefik docker image
-    restart: always
-    command: --api --docker  # Enables the web UI and tells Traefik to listen to docker
+    image: traefik:latest  # The official Traefik docker image
+    command: --api --docker  # Enables the web UI and tells Traefik to listen
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.role==manager
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    restart: always # not supported in swarm mode to docker
     ports:
       - "80:80"      # The HTTP port
       - "443:443"
       - "8080:8080"  # The Web UI (enabled by --api)
-    networks: 
-      - web
+    networks:
       - functions
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
       - /mnt/ssd/projects/traefik-local/traefik.toml:/traefik.toml
       - /mnt/ssd/projects/traefik-local/acme.json:/acme.json
-    container_name: traefik
+    container_name: traefik # not supported in swarm mode
 
-networks: 
-  web:
-    external: true
+networks:
   functions:
     external: true
-    
