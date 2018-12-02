@@ -18,6 +18,17 @@ defaultEntryPoints = ["https","http"]
   [entryPoints.https]
   address = ":443"
   [entryPoints.https.tls]
+  [entryPoints.api]
+  address = ":8080"
+    [entryPoints.api.auth.basic]
+    usersFile = "/htpasswd.api"
+
+[api]
+entryPoint = "api"
+dashboard = true
+
+[ping]
+entryPoint = "https"
 
 [retry]
 

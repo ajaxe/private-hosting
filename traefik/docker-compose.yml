@@ -4,7 +4,7 @@ services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     image: traefik:latest  # The official Traefik docker image
-    command: --api --docker  # Enables the web UI and tells Traefik to listen
+    command: --docker      # Enables the web UI and tells Traefik to listen
     deploy:
       mode: replicated
       placement:
@@ -28,6 +28,7 @@ services:
       - /mnt/ssd/projects/private-hosting/traefik/traefik.toml:/traefik.toml
       - /mnt/ssd/projects/private-hosting/traefik/acme.json:/acme.json
       - /mnt/ssd/projects/private-hosting/htpasswd:/htpasswd
+      - /mnt/ssd/projects/private-hosting/htpasswd.api:/htpasswd.api
     container_name: traefik # not supported in swarm mode
 
 networks:

@@ -38,6 +38,7 @@ services:
                 - "traefik.port=8080"
                 - "traefik.enable=true"
                 - "traefik.open.frontend.rule=Host:faas.apogee-dev.com;PathPrefix:/function,/async-function"
+                - "traefik.secured.frontend.rule=Host:faas.apogee-dev.com;PathPrefix:/ui,/system"
                 - "traefik.secured.frontend.auth.basic.usersFile=/htpasswd"
                 - "traefik.frontend.ratelimit.extractorFunc=client.ip"
                 - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
