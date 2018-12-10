@@ -13,7 +13,7 @@ services:
         - "traefik.docker.network=functions"
         - "traefik.enable=true"
         - "traefik.domain=offsite.apogee-dev.com"
-        - "traefik.frontend.rule=Host:offsite.apogee-dev.com;PathPrefixStrip:/hostmgmt"
+        - "traefik.frontend.rule=Host:offsite.apogee-dev.com;PathPrefix:/hostmgmt"
         - "traefik.frontend.ratelimit.extractorFunc=client.ip"
         - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
         - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
