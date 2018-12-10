@@ -1,0 +1,32 @@
+version: "3.3"
+services:
+  database:
+    ports:
+      - "3306:3306"
+    image: mariadb:latest
+    networks:
+      - functions
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/mariadb/storage:/var/lib/mysql"
+      - "/mnt/ssd/projects/private-hosting/mariadb/secrets:/dbsecrets"
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: "/dbsecrets/root_password"
+    deploy:
+      resources:
+        limits:   # Enable if you want to limit memory usage
+          memory: 200M
+        reservations:
+          memory: 100M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 20
+        window: 380s
+      placement:
+        constraints:
+          - 'node.platform.os == linux'
+          - node.role==manager
+
+networks:
+  functions:
+    external: true

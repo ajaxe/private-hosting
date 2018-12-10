@@ -1,0 +1,46 @@
+version: "3.3"
+
+services:
+  host-mgmt:
+    image: docker-registry.apogee-dev.com/host-mgmt
+    restart: "always"
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/host-mgmt/keys:/home/app/keys"
+    environment:
+      - AppPathPrefix=/hostmgmt
+    deploy:
+      labels:
+        - "traefik.docker.network=functions"
+        - "traefik.enable=true"
+        - "traefik.domain=offsite.apogee-dev.com"
+        - "traefik.frontend.rule=Host:offsite.apogee-dev.com;PathPrefixStrip:/hostmgmt"
+        - "traefik.frontend.ratelimit.extractorFunc=client.ip"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+      mode: replicated
+      placement:
+        constraints:
+          - "node.platform.os == linux"
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - functions
+    labels:
+      - "traefik.docker.network=functions"
+      - "traefik.enable=true"
+      - "traefik.domain=offsite.apogee-dev.com"
+      - "traefik.frontend.rule=Host:offsite.apogee-dev.com;PathPrefix:/hostmgmt"
+      - "traefik.frontend.ratelimit.extractorFunc=client.ip"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+    container_name: "host_mgmt"
+
+networks:
+  functions:
+    external: true

@@ -1,7 +1,11 @@
 acme.json
 *.sample
+
+secrets/
 logs/
 storage/
+keys/
+
 .htpasswd
 htpasswd
 htpasswd.api
