@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+  fluentd:
+    image: docker-registry.apogee-dev.com/custom-fluentd #fluent/fluentd:v1.3-debian
+    container_name: fluentd
+    environment:
+      - FLUENTD_CONF=custom_fluentd.conf
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/fluentd/data:/fluentd/log"
+      - "/mnt/ssd/projects/private-hosting/fluentd/etc:/fluentd/etc"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      - functions
+
+networks:
+  functions:
+    external: true
