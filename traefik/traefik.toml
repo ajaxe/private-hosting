@@ -52,3 +52,5 @@ entryPoint = "http"
   main = "docker-registry.apogee-dev.com"
 [[acme.domains]]
   main = "faas.apogee-dev.com"
+[[acme.domains]]
+  main = "ryyng.apogee-dev.com"

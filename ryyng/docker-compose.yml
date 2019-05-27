@@ -1,0 +1,51 @@
+version: "3.3"
+
+services:
+  webapp:
+    image: docker-registry.apogee-dev.com/ryyng:latest
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/ryyng/config:/home/app/config:ro"
+    restart: "always"
+    deploy:
+      labels:
+        - "traefik.docker.network=functions"
+        - "traefik.enable=true"
+        - "traefik.domain=ryyng.apogee-dev.com"
+        - "traefik.frontend.rule=Host:ryyng.apogee-dev.com"
+        - "traefik.frontend.ratelimit.extractorFunc=client.ip"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
+        - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+      mode: replicated
+      placement:
+        constraints:
+          - "node.platform.os == linux"
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - functions
+    labels:
+      - "traefik.docker.network=functions"
+      - "traefik.enable=true"
+      - "traefik.domain=ryyng.apogee-dev.com"
+      - "traefik.frontend.rule=Host:ryyng.apogee-dev.com"
+      - "traefik.frontend.ratelimit.extractorFunc=client.ip"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
+      - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+    container_name: "ryyng"
+    external_links:
+      - DockerLogging_fluentd
+    logging:
+      driver: fluentd
+      options:
+        tag: "docker.{{.Name}}"
+        env: "SERVICE_NAME,DEPLOY_ENV"
+
+networks:
+  functions:
+    external: true

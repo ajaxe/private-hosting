@@ -1,10 +1,13 @@
 acme.json
 *.sample
+*.ovpn
+options.json
 
 secrets/
 logs/
 storage/
 keys/
+openvpn-data/
 
 .htpasswd
 htpasswd
