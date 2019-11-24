@@ -12,12 +12,17 @@ services:
       labels:
         - "traefik.docker.network=functions"
         - "traefik.enable=true"
-        - "traefik.domain=offsite.apogee-dev.com"
-        - "traefik.frontend.rule=Host:offsite.apogee-dev.com;PathPrefix:/hostmgmt"
-        - "traefik.frontend.ratelimit.extractorFunc=client.ip"
-        - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
-        - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
-        - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
+        - "traefik.http.routers.host-mgmt.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/hostmgmt`)"
+        - "traefik.http.routers.host-mgmt.entrypoints=http,https"
+        - "traefik.http.routers.host-mgmt.middlewares=redirect@file,compress"
+        - "traefik.http.routers.host-mgmt.tls.domains[0].main=offsite.apogee-dev.com"
+        - "traefik.http.routers.host-mgmt.tls.certResolver=default"
+        - "traefik.http.routers.host-mgmt.service=host-mgmt"
+
+        - "traefik.http.middlewares.compress.compress=true"
+
+        - "traefik.http.services.host-mgmt.loadbalancer.server.port=5000"
+
       mode: replicated
       placement:
         constraints:
@@ -30,23 +35,6 @@ services:
         window: 120s
     networks:
       - functions
-    labels:
-      - "traefik.docker.network=functions"
-      - "traefik.enable=true"
-      - "traefik.domain=offsite.apogee-dev.com"
-      - "traefik.frontend.rule=Host:offsite.apogee-dev.com;PathPrefix:/hostmgmt"
-      - "traefik.frontend.ratelimit.extractorFunc=client.ip"
-      - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
-      - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
-      - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
-    container_name: "host_mgmt"
-    external_links:
-      - DockerLogging_fluentd
-    logging:
-      driver: fluentd
-      options:
-        tag: "docker.{{.Name}}"
-        env: "SERVICE_NAME,DEPLOY_ENV"
 
 networks:
   functions:
