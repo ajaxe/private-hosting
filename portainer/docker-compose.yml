@@ -1,8 +1,9 @@
-version: '3'
+version: '3.7'
 
 services:
   portainer:
     image: portainer/portainer
+    command: --admin-password-file '/run/secrets/portainer-admin-pass'
     deploy:
       mode: replicated
       placement:
@@ -23,7 +24,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - "/mnt/ssd/projects/private-hosting/portainer/data:/data"
     container_name: portainer # not supported in swarm mode
+    secrets:
+      - portainer-admin-pass
 
 networks:
   functions:
+    external: true
+
+secrets:
+  portainer-admin-pass:
     external: true

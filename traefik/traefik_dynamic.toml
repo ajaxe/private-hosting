@@ -1,0 +1,6 @@
+
+[http.middlewares]
+  [http.middlewares.redirect.redirectScheme]
+    scheme = "https"
+  [http.middlewares.default-auth.basicAuth]
+    usersFile = "/htpasswd.api"
