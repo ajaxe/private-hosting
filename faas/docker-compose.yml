@@ -19,32 +19,25 @@ services:
             basic_auth: "${BASIC_AUTH:-true}"
             secret_mount_path: "/run/secrets/"
             scale_from_zero: "false"
-        labels:
-            - "traefik.domain=faas.apogee-dev.com"
-            - "traefik.docker.network=functions"
-            - "traefik.port=8080"
-            - "traefik.enable=true"
-            - "traefik.open.frontend.rule=Host:faas.apogee-dev.com;PathPrefix:/function,/async-function"
-            - "traefik.secured.frontend.rule=Host:faas.apogee-dev.com;PathPrefix:/ui,/system"
-            - "traefik.secured.frontend.auth.basic.usersFile=/htpasswd"
-            - "traefik.frontend.ratelimit.extractorFunc=client.ip"
-            - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
-            - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
-            - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
         deploy:
             labels:
-                - "traefik.domain=faas.apogee-dev.com"
                 - "traefik.docker.network=functions"
-                - "traefik.port=8080"
                 - "traefik.enable=true"
-                - "traefik.open.frontend.rule=Host:faas.apogee-dev.com;PathPrefix:/function,/async-function"
-                - "traefik.secured.frontend.rule=Host:faas.apogee-dev.com;PathPrefix:/ui,/system"
-                - "traefik.secured.frontend.auth.basic.usersFile=/htpasswd"
-                - "traefik.frontend.ratelimit.extractorFunc=client.ip"
-                - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
-                - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
-                - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
-                #copy/paste the contents of password.txt here
+                - "traefik.http.routers.open-faas-secured.rule=Host(`faas.apogee-dev.com`) && (PathPrefix(`/ui`) || PathPrefix(`/system`))"
+                - "traefik.http.routers.open-faas-secured.entrypoints=http,https"
+                - "traefik.http.routers.open-faas-secured.middlewares=redirect@file,default-auth@file,compress"
+                - "traefik.http.routers.open-faas-secured.service=open-faas"
+                - "traefik.http.routers.open-faas-secured.tls.domains[0].main=faas.apogee-dev.com"
+                - "traefik.http.routers.open-faas-secured.tls.certResolver=default"
+
+                - "traefik.http.services.open-faas.loadbalancer.server.port=8080"
+
+                - "traefik.http.routers.open-faas.rule=Host(`faas.apogee-dev.com`) && (PathPrefix(`/function`) || PathPrefix(`/async-function`))"
+                - "traefik.http.routers.open-faas.entrypoints=http,https"
+                - "traefik.http.routers.open-faas.middlewares=redirect@file,compress"
+                - "traefik.http.routers.open-faas.service=open-faas"
+                - "traefik.http.routers.open-faas.tls.domains[0].main=faas.apogee-dev.com"
+                - "traefik.http.routers.open-faas.tls.certResolver=default"
             resources:
                 limits:   # Enable if you want to limit memory usage
                     memory: 200M
@@ -216,8 +209,8 @@ networks:
         #labels:
         #  - "openfaas=true"
 
-secrets:
-    basic-auth-user:
-        external: true
-    basic-auth-password:
-        external: true
+#secrets:
+#    basic-auth-user:
+#        external: true
+#    basic-auth-password:
+#        external: true
