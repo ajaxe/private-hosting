@@ -8,7 +8,7 @@ services:
       - "5000"
     deploy:
       labels:
-        - "traefik.http.routers.registry.rule=Host(`docker-registry.apogee-dev.com`)"
+        - "traefik.http.routers.registry.rule=Host(`docker-registry.apogee-dev.com`) && PathPrefix(`/v2`)"
         # per router http to https redirection
         - "traefik.http.routers.registry.entrypoints=http,https"
         - "traefik.http.routers.registry.middlewares=redirect@file,default-auth@file"
@@ -36,24 +36,29 @@ services:
     container_name: "docker_registry"
 
   registry_ui:
-    image: atcol/docker-registry-ui
+    image: joxit/docker-registry-ui:static
     restart: "always"
     environment:
-      REG1: "http://registry:5000/v2/"
-      READ_ONLY: "true"
+      REGISTRY_URL: "http://registry:5000"
+      PULL_URL: "http://registry:5000"
+      REGISTRY_TITLE: "Apogee-Dev Private Docker Registry"
+      DELETE_IMAGES: "true"
+    depends_on: ['registry']
     deploy:
       labels:
         - "traefik.docker.network=functions"
         - "traefik.enable=true"
-        - "traefik.domain=docker-registry-ui.apogee-dev.com"
-        - "traefik.frontend.rule=Host:docker-registry-ui.apogee-dev.com"
-        - "traefik.registry.frontend.auth.forward.address=https://offsite.apogee-dev.com/hostmgmt/api/authentication/verify"
-        - "traefik.frontend.ratelimit.extractorFunc=client.ip"
-        - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
-        - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
-        - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
-        - "traefik.port=8080"
-        - "traefik.protocol=http"
+
+        - "traefik.http.routers.registry-ui.rule=Host(`docker-registry.apogee-dev.com`) && PathPrefix(`/ui`)"
+        - "traefik.http.routers.registry-ui.entrypoints=http,https"
+        - "traefik.http.routers.registry-ui.middlewares=redirect@file,default-auth@file,stripprefix-ui"
+        - "traefik.http.routers.registry-ui.service=registry-ui"
+        - "traefik.http.routers.registry-ui.tls.domains[0].main=docker-registry.apogee-dev.com"
+        - "traefik.http.routers.registry-ui.tls.certResolver=default"
+
+        - "traefik.http.middlewares.stripprefix-ui.stripprefix.prefixes=/ui"
+
+        - "traefik.http.services.registry-ui.loadbalancer.server.port=80"
       mode: replicated
       placement:
         constraints:
@@ -64,26 +69,10 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-    # no need to expose ports within a swarm
-    #expose:
-    #  - "8080"
     volumes:
      - "/mnt/ssd/projects/docker-registry-ui/h2:/var/lib/h2"
     networks:
       - functions
-    labels:
-      - "traefik.docker.network=functions"
-      - "traefik.enable=true"
-      - "traefik.domain=docker-registry-ui.apogee-dev.com"
-      - "traefik.frontend.rule=Host:docker-registry-ui.apogee-dev.com"
-      - "traefik.registry.frontend.auth.forward.address=https://offsite.apogee-dev.com/hostmgmt/api/authentication/verify"
-      - "traefik.frontend.ratelimit.extractorFunc=client.ip"
-      - "traefik.frontend.rateLimit.rateSet.rateset1.period=3"
-      - "traefik.frontend.rateLimit.rateSet.rateset1.average=5"
-      - "traefik.frontend.rateLimit.rateSet.rateset1.burst=10"
-      - "traefik.port=8080"
-      - "traefik.protocol=http"
-    container_name: "docker_registry_ui"
 
 networks:
   functions:
