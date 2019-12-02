@@ -1,0 +1,54 @@
+version: "3.7"
+services:
+  influxdb:
+    image: influxdb:1.7-alpine
+    networks:
+      - functions
+    ports:
+      - "8086:8086"
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/tick_stack/influxdb:/var/lib/influxdb"
+    environment:
+      - INFLUXDB_DATA_INDEX_VERSION=tsi1
+  chronograf:
+    image: chronograf:1.7-alpine
+    command: --influxdb-url=http://influxdb:8086
+    networks:
+      - functions
+    ports:
+      - "8888:8888"
+    volumes:
+     - "/mnt/ssd/projects/private-hosting/tick_stack/chronograf:/var/lib/chronograf"
+  kapacitor:
+    image: kapacitor:1.5-alpine
+    ports:
+      - "9092:9092"
+    volumes:
+     - "/mnt/ssd/projects/private-hosting/tick_stack/kapacitor:/var/lib/kapacitor"
+    environment:
+      - KAPACITOR_INFLUXDB_0_URLS_0=http://influxdb:8086
+  telegraf:
+    image: telegraf:1.12-alpine
+    restart: always
+    environment:
+      HOST_PROC: /rootfs/proc
+      HOST_SYS: /rootfs/sys
+      HOST_ETC: /rootfs/etc
+    networks:
+      - functions
+    ports:
+      - "8125:8125"
+      - "8092:8092/udp"
+      - "8094:8094/tcp"
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/tick_stack/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/sys:/rootfs/sys:ro"
+      - "/proc:/rootfs/proc:ro"
+      - "/etc:/rootfs/etc:ro"
+    depends_on:
+      - influxdb
+
+networks:
+  functions:
+    external: true
