@@ -22,6 +22,8 @@ services:
         - "traefik.http.middlewares.compress.compress=true"
 
         - "traefik.http.services.host-mgmt.loadbalancer.server.port=5000"
+        - "traefik.http.services.host-mgmt.loadbalancer.sticky.cookie.httponly=true"
+        - "traefik.http.services.host-mgmt.loadbalancer.sticky.cookie.secure=true"
 
       mode: replicated
       placement:
@@ -35,6 +37,11 @@ services:
         window: 120s
     networks:
       - functions
+    logging:
+      driver: fluentd
+      options:
+        tag: "docker.{{.Name}}"
+        env: "SERVICE_NAME,DEPLOY_ENV"
 
 networks:
   functions:

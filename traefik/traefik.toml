@@ -4,6 +4,7 @@
 
 [log]
   level = "DEBUG"
+  format = "json"
 
 [entryPoints.http]
   address = ":80"
