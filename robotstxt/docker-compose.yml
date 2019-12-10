@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  nginx:
+    image: nginx:1.17-alpine
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/robotstxt/public:/usr/share/nginx/html:ro"
+    restart: "always"
+    deploy:
+      labels:
+        - "traefik.docker.network=functions"
+        - "traefik.enable=true"
+        - "traefik.http.routers.robotstxt.rule=Path(`/robots.txt`)"
+        - "traefik.http.routers.robotstxt.priority=9999"
+        - "traefik.http.routers.robotstxt.entrypoints=http,https"
+        - "traefik.http.routers.robotstxt.tls.domains[0].main=ryyng.apogee-dev.com"
+        - "traefik.http.routers.robotstxt.tls.domains[1].main=offsite.apogee-dev.com"
+        - "traefik.http.routers.robotstxt.tls.domains[2].main=faas.apogee-dev.com"
+        - "traefik.http.routers.robotstxt.tls.domains[3].main=docker-registry.apogee-dev.com"
+        - "traefik.http.routers.robotstxt.tls.certResolver=default"
+        - "traefik.http.routers.robotstxt.service=robotstxt"
+        - "traefik.http.services.robotstxt.loadbalancer.server.port=80"
+      mode: replicated
+      placement:
+        constraints:
+          - "node.platform.os == linux"
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - functions
+
+networks:
+  functions:
+    external: true
