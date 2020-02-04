@@ -4,3 +4,5 @@
     scheme = "https"
   [http.middlewares.default-auth.basicAuth]
     usersFile = "/htpasswd.api"
+  [http.middlewares.default-compress.compress]
+    compress = true

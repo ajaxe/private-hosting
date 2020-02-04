@@ -14,12 +14,10 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.host-mgmt.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/hostmgmt`)"
         - "traefik.http.routers.host-mgmt.entrypoints=http,https"
-        - "traefik.http.routers.host-mgmt.middlewares=redirect@file,compress"
+        - "traefik.http.routers.host-mgmt.middlewares=redirect@file,default-compress@file"
         - "traefik.http.routers.host-mgmt.tls.domains[0].main=offsite.apogee-dev.com"
         - "traefik.http.routers.host-mgmt.tls.certResolver=default"
         - "traefik.http.routers.host-mgmt.service=host-mgmt"
-
-        - "traefik.http.middlewares.compress.compress=true"
 
         - "traefik.http.services.host-mgmt.loadbalancer.server.port=5000"
         - "traefik.http.services.host-mgmt.loadbalancer.sticky.cookie.httponly=true"
