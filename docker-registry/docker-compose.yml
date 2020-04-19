@@ -30,7 +30,7 @@ services:
         max_attempts: 3
         window: 120s
     volumes:
-     - "/mnt/ssd/projects/docker-registry/storage:/var/lib/registry"
+      - "/mnt/ssd/projects/docker-registry/storage:/var/lib/registry"
     networks:
       - functions
     container_name: "docker_registry"
@@ -43,7 +43,7 @@ services:
       PULL_URL: "http://registry:5000"
       REGISTRY_TITLE: "Apogee-Dev Private Docker Registry"
       DELETE_IMAGES: "true"
-    depends_on: ['registry']
+    depends_on: ["registry"]
     deploy:
       labels:
         - "traefik.docker.network=functions"
@@ -70,9 +70,15 @@ services:
         max_attempts: 3
         window: 120s
     volumes:
-     - "/mnt/ssd/projects/docker-registry-ui/h2:/var/lib/h2"
+      - "/mnt/ssd/projects/docker-registry-ui/h2:/var/lib/h2"
     networks:
       - functions
+    logging:
+      driver: fluentd
+      options:
+        tag: "docker.{{.Name}}"
+        env: "SERVICE_NAME,DEPLOY_ENV"
+        fluentd-address: localhost:24224
 
 networks:
   functions:

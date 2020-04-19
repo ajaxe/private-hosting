@@ -34,6 +34,7 @@ services:
       options:
         tag: "docker.{{.Name}}"
         env: "SERVICE_NAME,DEPLOY_ENV"
+        fluentd-address: localhost:24224
 
 networks:
   functions:

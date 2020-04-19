@@ -33,6 +33,12 @@ services:
         window: 120s
     networks:
       - functions
+    logging:
+      driver: fluentd
+      options:
+        tag: "docker.{{.Name}}"
+        env: "SERVICE_NAME,DEPLOY_ENV"
+        fluentd-address: localhost:24224
 
 networks:
   functions:
