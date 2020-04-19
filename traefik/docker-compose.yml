@@ -1,9 +1,9 @@
-version: '3.7'
+version: "3.7"
 
 services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
-    image: traefik:v2.0  # The official Traefik docker image
+    image: traefik:v2.0 # The official Traefik docker image
     deploy:
       mode: replicated
       placement:
@@ -17,19 +17,25 @@ services:
         window: 120s
     restart: always # not supported in swarm mode to docker
     ports:
-      - "80:80"      # The HTTP port
+      - "80:80" # The HTTP port
       - "443:443"
-      - "8080:8080"  # The Web UI (enabled by --api)
+      - "8080:8080" # The Web UI (enabled by --api)
     networks:
       - functions
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
-      - /mnt/ssd/projects/private-hosting/traefik/traefik.toml:/traefik.toml
-      - /mnt/ssd/projects/private-hosting/traefik/traefik_dynamic.toml:/traefik_dynamic.toml
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - /mnt/ssd/projects/private-hosting/traefik/traefik.yml:/traefik.yml
+      - /mnt/ssd/projects/private-hosting/traefik/traefik_dynamic.yml:/traefik_dynamic.yml
       - /mnt/ssd/projects/private-hosting/traefik/acme.json:/acme.json
       - /mnt/ssd/projects/private-hosting/htpasswd:/htpasswd
       - /mnt/ssd/projects/private-hosting/htpasswd.api:/htpasswd.api
     container_name: traefik # not supported in swarm mode
+    logging:
+      driver: fluentd
+      options:
+        tag: "docker.{{.Name}}"
+        env: "SERVICE_NAME,DEPLOY_ENV"
+        fluentd-address: localhost:24224
 
 networks:
   functions:

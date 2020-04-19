@@ -1,0 +1,20 @@
+http:
+  routers:
+    api:
+      entryPoints:
+        - traefik
+      middlewares:
+        - default-auth@file
+      rule: "Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      service: api@internal
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+        port: 443
+    default-auth:
+      basicAuth:
+        usersFile: /htpasswd.api
+    default-compress:
+      compress: {}

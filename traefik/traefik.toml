@@ -15,15 +15,6 @@
 [entryPoints.traefik]
   address = ":8080"
 
-[http.routers]
-  [http.routers.api]
-    # Matches http://traefik.domain.com/api or http://traefik.domain.com/dashboard
-    # but does not match http://traefik.domain.com/hello
-    rule = "Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-    service = "api@internal"
-    entrypoints = ["traefik"]
-    middlewares = ["default-auth@file"]
-
 [tls.options]
   [tls.options.default]
     minVersion = "VersionTLS12"
@@ -40,16 +31,17 @@
 
 [retry]
 
-[providers.file]
-  watch = true
-  filename = "/traefik_dynamic.toml"
+[providers]
+  [providers.file]
+    watch = true
+    filename = "/traefik_dynamic.toml"
 
-[providers.docker]
-  defaultRule = "host.local"
-  endpoint = "unix:///var/run/docker.sock"
-  exposedByDefault = false
-  swarmMode = true
-  network = "functions"
+  [providers.docker]
+    defaultRule = "host.local"
+    endpoint = "unix:///var/run/docker.sock"
+    exposedByDefault = false
+    swarmMode = true
+    network = "functions"
 
 [certificatesResolvers.default.acme]
   email = "asharma.domain@gmail.com"

@@ -1,8 +1,21 @@
-
-[http.middlewares]
-  [http.middlewares.redirect.redirectScheme]
-    scheme = "https"
-  [http.middlewares.default-auth.basicAuth]
-    usersFile = "/htpasswd.api"
-  [http.middlewares.default-compress.compress]
-    compress = true
+[http]
+  [http.routers]
+    [http.routers.api]
+      # Matches http://traefik.domain.com/api or http://traefik.domain.com/dashboard
+      # but does not match http://traefik.domain.com/hello
+      rule = "Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      service = "api@internal"
+      entrypoints = ["traefik"]
+      middlewares = ["default-auth@file"]
+  [http.middlewares]
+    [http.middlewares.redirect]
+      [http.middlewares.redirect.redirectScheme]
+        scheme = "https"
+        permanent = true
+        port = 443
+    [http.middlewares.default-auth]
+      [http.middlewares.default-auth.basicAuth]
+        usersFile = "/htpasswd.api"
+    [http.middlewares.default-compress]
+      [http.middlewares.default-compress.compress]
+        compress = true

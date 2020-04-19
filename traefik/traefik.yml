@@ -1,0 +1,52 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: true
+
+log:
+  level: DEBUG
+  format: json
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+  traefik:
+    address: ":8080"
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+
+    mintls13:
+      minVersion: VersionTLS13
+
+accessLog: {}
+
+api:
+  insecure: true
+  dashboard: true
+  debug: true
+
+ping:
+  entryPoint: https
+
+providers:
+  file:
+    filename: /traefik_dynamic.yml
+
+  docker:
+    defaultRule: host.local
+    endpoint: unix:///var/run/docker.sock
+    exposedByDefault: false
+    swarmMode: true
+    network: functions
+
+certificatesResolvers:
+  default:
+    acme:
+      email: asharma.domain@gmail.com
+      storage: acme.json
+      httpChallenge:
+        entryPoint: http
