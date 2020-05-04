@@ -1,8 +1,6 @@
 version: "3.3"
 services:
   database:
-    ports:
-      - "3306:3306"
     image: mariadb:latest
     networks:
       - functions
@@ -12,8 +10,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD_FILE: "/dbsecrets/root_password"
     deploy:
+      labels:
+        - "traefik.enable=false"
       resources:
-        limits:   # Enable if you want to limit memory usage
+        limits: # Enable if you want to limit memory usage
           memory: 200M
         reservations:
           memory: 100M
@@ -24,7 +24,7 @@ services:
         window: 380s
       placement:
         constraints:
-          - 'node.platform.os == linux'
+          - "node.platform.os == linux"
           - node.role==manager
 
 networks:
