@@ -2,9 +2,9 @@ version: "3.7"
 
 services:
   database:
-    image: postgres:alpine
+    image: postgres:14.5-alpine
     networks:
-      - functions
+      - public-proxy
     volumes:
       - "/mnt/ssd/projects/private-hosting/postgres/storage:/var/lib/postgresql/data"
       - "/mnt/ssd/projects/private-hosting/postgres/secrets:/dbsecrets:ro"
@@ -12,40 +12,27 @@ services:
     environment:
       POSTGRES_PASSWORD_FILE: "/dbsecrets/root_password"
       POSTGRES_USER_FILE: "/dbsecrets/user"
-    deploy:
-      labels:
-        - "traefik.enable=true"
-      resources:
-        limits: # Enable if you want to limit memory usage
-          memory: 200M
-        reservations:
-          memory: 100M
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 20
-        window: 380s
-      placement:
-        constraints:
-          - "node.platform.os == linux"
-          - node.role==manager
+    labels:
+      - "traefik.enable=true"
 
   pgadmin4:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     ports:
       - "5050:80"
     networks:
-      - functions
+      - public-proxy
     environment:
-      PGADMIN_DEFAULT_EMAIL: ""
       PGADMIN_DEFAULT_PASSWORD: ""
+      PGADMIN_DEFAULT_EMAIL: "admin@localhost.com"
+    volumes:
+      - "/mnt/ssd/projects/private-hosting/postgres/secrets:/dbsecrets:ro"
 
   postgrest:
     image: postgrest/postgrest
     ports:
       - "3000:3000"
     networks:
-      - functions
+      - public-proxy
     volumes:
       - "/mnt/ssd/projects/private-hosting/postgres/secrets:/dbsecrets:ro"
     environment:
@@ -53,32 +40,17 @@ services:
       - PGRST_DB_ANON_ROLE=anonymous
       - PGRST_DB_SCHEMA=public,api
       - PGRST_JWT_SECRET=@/dbsecrets/pgrst_jwt_secret
-    deploy:
-      labels:
-        - "traefik.docker.network=functions"
-        - "traefik.enable=true"
-        - "traefik.http.routers.db-api-1.rule=Host(`db1-f95c49fd.apogee-dev.com`)"
-        - "traefik.http.routers.db-api-1.entrypoints=websecured"
-        - "traefik.http.routers.db-api-1.tls=true"
-        - "traefik.http.routers.db-api-1.tls.domains[0].main=db1-f95c49fd.apogee-dev.com"
-        - "traefik.http.routers.db-api-1.tls.certResolver=default"
-        - "traefik.http.routers.db-api-1.service=postgres-api"
-        - "traefik.http.services.postgres-api.loadbalancer.server.port=3000"
-      resources:
-        limits: # Enable if you want to limit memory usage
-          memory: 200M
-        reservations:
-          memory: 100M
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 20
-        window: 380s
-      placement:
-        constraints:
-          - "node.platform.os == linux"
-          - node.role==manager
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.db-api-1.rule=Host(`db1-f95c49fd.apogee-dev.com`)"
+      - "traefik.http.routers.db-api-1.entrypoints=websecured"
+      - "traefik.http.routers.db-api-1.tls=true"
+      - "traefik.http.routers.db-api-1.tls.domains[0].main=db1-f95c49fd.apogee-dev.com"
+      - "traefik.http.routers.db-api-1.tls.certResolver=default"
+      - "traefik.http.routers.db-api-1.service=postgres-api"
+      - "traefik.http.services.postgres-api.loadbalancer.server.port=3000"
 
 networks:
-  functions:
+  public-proxy:
     external: true

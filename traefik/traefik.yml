@@ -54,4 +54,4 @@ certificatesResolvers:
       email: asharma.domain@gmail.com
       storage: acme.json
       httpChallenge:
-        entryPoint: http
+        entryPoint: web

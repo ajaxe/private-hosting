@@ -3,25 +3,14 @@ version: "3.7"
 services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
-    image: traefik:v2.2 # The official Traefik docker image
-    deploy:
-      mode: replicated
-      placement:
-        constraints:
-          - node.role==manager
-      replicas: 1
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+    image: traefik:v2.8.3 # The official Traefik docker image
     restart: always # not supported in swarm mode to docker
     ports:
       - "80:80" # The HTTP port
       - "443:443"
       - "8080:8080" # The Web UI (enabled by --api)
     networks:
-      - functions
+      - public-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
       - /mnt/ssd/projects/private-hosting/traefik/traefik.yml:/traefik.yml
@@ -30,13 +19,7 @@ services:
       - /mnt/ssd/projects/private-hosting/htpasswd:/htpasswd
       - /mnt/ssd/projects/private-hosting/htpasswd.api:/htpasswd.api
     container_name: traefik # not supported in swarm mode
-    logging:
-      driver: fluentd
-      options:
-        tag: "docker.{{.Name}}"
-        env: "SERVICE_NAME,DEPLOY_ENV"
-        fluentd-address: localhost:24224
 
 networks:
-  functions:
+  public-proxy:
     external: true
