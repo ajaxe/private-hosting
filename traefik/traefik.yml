@@ -42,11 +42,11 @@ providers:
     filename: /traefik_dynamic.yml
 
   docker:
-    defaultRule: host.local
+    defaultRule: Host(`{{ normalize .Name }}`)
     endpoint: unix:///var/run/docker.sock
     exposedByDefault: false
-    swarmMode: true
-    network: functions
+    swarmMode: false
+    network: public-proxy
 
 certificatesResolvers:
   default:
