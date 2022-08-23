@@ -3,8 +3,9 @@ version: "3.7"
 services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
+    container_name: traefik # not supported in swarm mode
     image: traefik:v2.8.3 # The official Traefik docker image
-    restart: always # not supported in swarm mode to docker
+    restart: unless-stopped # not supported in swarm mode to docker
     ports:
       - "80:80" # The HTTP port
       - "443:443"
@@ -13,12 +14,50 @@ services:
       - public-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-      - /mnt/ssd/projects/private-hosting/traefik/traefik.yml:/traefik.yml
-      - /mnt/ssd/projects/private-hosting/traefik/traefik_dynamic.yml:/traefik_dynamic.yml
-      - /mnt/ssd/projects/private-hosting/traefik/acme.json:/acme.json
-      - /mnt/ssd/projects/private-hosting/htpasswd:/htpasswd
-      - /mnt/ssd/projects/private-hosting/htpasswd.api:/htpasswd.api
-    container_name: traefik # not supported in swarm mode
+      - ${HOSTING_DIR}/traefik/traefik.yml:/traefik.yml
+      - ${HOSTING_DIR}/traefik/traefik_dynamic.yml:/traefik_dynamic.yml
+      - ${HOSTING_DIR}/traefik/acme.json:/acme.json
+      - ${HOSTING_DIR}/htpasswd:/htpasswd
+      - ${HOSTING_DIR}/htpasswd.api:/htpasswd.api
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    #restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3100"
+    networks:
+      - public-proxy
+    volumes:
+      - ${HOSTING_DIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ${HOSTING_DIR}/loki/data:/data/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+  grafana:
+    image: "grafana/grafana:latest"
+    restart: unless-stopped
+    user: "0"
+    volumes:
+      - "${HOSTING_DIR}/grafana/data:/var/lib/grafana"
+    ports:
+      - 3101:3000
+    networks:
+      - public-proxy
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
 
 networks:
   public-proxy:

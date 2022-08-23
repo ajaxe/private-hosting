@@ -8,6 +8,10 @@ http:
       rule: "Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       service: api@internal
   middlewares:
+    onereq-ratelimit:
+      rateLimit:
+        average: 2
+        burst: 1
     redirect:
       redirectScheme:
         scheme: https
