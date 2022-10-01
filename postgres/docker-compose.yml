@@ -3,6 +3,7 @@ version: "3.7"
 services:
   database:
     image: postgres:14.5-alpine
+    container_name: pg-database
     networks:
       - public-proxy
     volumes:
@@ -22,6 +23,7 @@ services:
 
   pgadmin4:
     image: dpage/pgadmin4:latest
+    container_name: pgadmin
     ports:
       - "5050:80"
     networks:
@@ -39,6 +41,7 @@ services:
 
   postgrest:
     image: postgrest/postgrest
+    container_name: postgrest
     ports:
       - "3000:3000"
     networks:
