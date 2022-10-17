@@ -4,6 +4,6 @@ Docker Swarm configuration files. See [Self-Hosting](http://apogee-dev.com/proje
 
 ## Command
 
-```
+```console
 docker compose --env-file ../.env up -d
 ```
