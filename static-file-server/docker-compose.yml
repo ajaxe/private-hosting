@@ -2,44 +2,32 @@ version: "3.7"
 
 services:
   nginx:
-    image: nginx:1.18-alpine
+    image: nginx:alpine
     volumes:
-      - "/mnt/ssd/projects/private-hosting/static-file-server/public:/usr/share/nginx/html:ro"
-    restart: "always"
-    deploy:
-      labels:
-        - "traefik.docker.network=functions"
-        - "traefik.enable=true"
-        - "traefik.http.routers.static-file.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/static-files`)"
-        - "traefik.http.routers.static-file.entrypoints=websecured"
-        - "traefik.http.routers.static-file.middlewares=default-compress@file,static-file-stripprefix"
-        - "traefik.http.routers.static-file.tls=true"
-        - "traefik.http.routers.static-file.tls.domains[1].main=offsite.apogee-dev.com"
-        - "traefik.http.routers.static-file.tls.certResolver=default"
-        - "traefik.http.routers.static-file.service=static-file-server"
+      - "${HOSTING_DIR}/static-file-server/public:/usr/share/nginx/html:ro"
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.static-file.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/static-files`)"
+      - "traefik.http.routers.static-file.entrypoints=websecured"
+      - "traefik.http.routers.static-file.middlewares=onereq-ratelimit@file,default-compress@file,static-file-stripprefix"
+      - "traefik.http.routers.static-file.tls=true"
+      - "traefik.http.routers.static-file.tls.domains[1].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.static-file.tls.certResolver=default"
+      - "traefik.http.routers.static-file.service=static-file-server"
 
-        - "traefik.http.middlewares.static-file-stripprefix.stripprefix.prefixes=/static-files"
+      - "traefik.http.middlewares.static-file-stripprefix.stripprefix.prefixes=/static-files"
 
-        - "traefik.http.services.static-file-server.loadbalancer.server.port=80"
-      mode: replicated
-      placement:
-        constraints:
-          - "node.platform.os == linux"
-      replicas: 1
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+      - "traefik.http.services.static-file-server.loadbalancer.server.port=80"
     networks:
-      - functions
+      - public-proxy
     logging:
-      driver: fluentd
+      driver: loki
       options:
-        tag: "docker.{{.Name}}"
-        env: "SERVICE_NAME,DEPLOY_ENV"
-        fluentd-address: localhost:24224
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
 
 networks:
-  functions:
+  public-proxy:
     external: true
