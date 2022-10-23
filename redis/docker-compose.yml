@@ -1,0 +1,33 @@
+version: "3.7"
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - public-proxy
+    container_name: redis-db
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
+
+  redis_manager:
+    image: lukiya/redismanager
+    restart: unless-stopped
+    ports:
+      - "16379:16379"
+    networks:
+      - public-proxy
+    container_name: redis-manager
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
+
+networks:
+  public-proxy:
+    external: true
