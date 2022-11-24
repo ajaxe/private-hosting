@@ -2,43 +2,28 @@ version: "3.7"
 
 services:
   nginx:
-    image: nginx:1.17-alpine
+    image: nginx:alpine
     volumes:
-      - "/mnt/ssd/projects/private-hosting/robotstxt/public:/usr/share/nginx/html:ro"
-    restart: "always"
-    deploy:
-      labels:
-        - "traefik.docker.network=functions"
-        - "traefik.enable=true"
-        - "traefik.http.routers.robotstxt.rule=Path(`/robots.txt`)"
-        - "traefik.http.routers.robotstxt.priority=9999"
-        - "traefik.http.routers.robotstxt.entrypoints=web,websecured"
-        - "traefik.http.routers.robotstxt.tls.domains[0].main=ryyng.apogee-dev.com"
-        - "traefik.http.routers.robotstxt.tls.domains[1].main=offsite.apogee-dev.com"
-        - "traefik.http.routers.robotstxt.tls.domains[2].main=faas.apogee-dev.com"
-        - "traefik.http.routers.robotstxt.tls.domains[3].main=docker-registry.apogee-dev.com"
-        - "traefik.http.routers.robotstxt.tls.certResolver=default"
-        - "traefik.http.routers.robotstxt.service=robotstxt"
-        - "traefik.http.services.robotstxt.loadbalancer.server.port=80"
-      mode: replicated
-      placement:
-        constraints:
-          - "node.platform.os == linux"
-      replicas: 1
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+      - "${HOSTING_DIR}/robotstxt/public:/usr/share/nginx/html:ro"
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.robotstxt.rule=Path(`/robots.txt`)"
+      - "traefik.http.routers.robotstxt.priority=9999"
+      - "traefik.http.routers.robotstxt.entrypoints=web,websecured"
+      - "traefik.http.routers.robotstxt.tls.domains[0].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.robotstxt.tls.certResolver=default"
+      - "traefik.http.routers.robotstxt.service=robotstxt"
+      - "traefik.http.services.robotstxt.loadbalancer.server.port=80"
     networks:
-      - functions
+      - public-proxy
     logging:
-      driver: fluentd
+      driver: loki
       options:
-        tag: "docker.{{.Name}}"
-        env: "SERVICE_NAME,DEPLOY_ENV"
-        fluentd-address: localhost:24224
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
 
 networks:
-  functions:
+  public-proxy:
     external: true

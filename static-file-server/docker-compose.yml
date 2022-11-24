@@ -13,7 +13,7 @@ services:
       - "traefik.http.routers.static-file.entrypoints=websecured"
       - "traefik.http.routers.static-file.middlewares=onereq-ratelimit@file,default-compress@file,static-file-stripprefix"
       - "traefik.http.routers.static-file.tls=true"
-      - "traefik.http.routers.static-file.tls.domains[1].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.static-file.tls.domains[0].main=offsite.apogee-dev.com"
       - "traefik.http.routers.static-file.tls.certResolver=default"
       - "traefik.http.routers.static-file.service=static-file-server"
 

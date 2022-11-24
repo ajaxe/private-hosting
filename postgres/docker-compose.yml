@@ -37,6 +37,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "secret"
     volumes:
       - "${HOSTING_DIR}/postgres/secrets:/dbsecrets:ro"
+      - "${HOSTING_DIR}/postgres/pgadmin/config:/var/lib/pgadmin"
     logging:
       driver: loki
       options:
