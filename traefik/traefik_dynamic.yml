@@ -8,6 +8,10 @@ http:
       rule: "Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       service: api@internal
   middlewares:
+    oneperminute-ratelimit:
+      rateLimit:
+        average: 1
+        period: 1m
     onereq-ratelimit:
       rateLimit:
         average: 2

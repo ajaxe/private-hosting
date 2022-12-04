@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+  webapp:
+    image: webhook-tester:local
+    restart: unless-stopped
+    environment:
+      APP_ConnectionStrings__MainStore: "${MainStore}"
+      APP_AppPathPrefix: /webhook-tester
+      APP_Logging__LogLevel__Microsoft.AspNetCore: Information
+      APP_AppOptions__GoogleClientId: ${GoogleClientId}
+      APP_AppOptions__GoogleClientSecret: ${GoogleClientSecret}
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      # rate-limited route
+      - "traefik.http.routers.webhooktester-ratelimited.entrypoints=websecured"
+      - traefik.http.routers.webhooktester-ratelimited.rule=Host(`offsite.apogee-dev.com`) && Path(`/{path:(?i:webhook-tester\/session[\/]{0,1})}`)
+      - "traefik.http.routers.webhooktester-ratelimited.priority=2"
+      - "traefik.http.routers.webhooktester-ratelimited.middlewares=default-compress@file,webhooktester,oneperminute-ratelimit@file"
+      - "traefik.http.routers.webhooktester-ratelimited.tls=true"
+      - "traefik.http.routers.webhooktester-ratelimited.tls.domains[0].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.webhooktester-ratelimited.tls.certResolver=default"
+      - "traefik.http.routers.webhooktester-ratelimited.service=webhooktester"
+      # general router by app prefix
+      - "traefik.http.routers.webhooktester.entrypoints=websecured"
+      - "traefik.http.routers.webhooktester.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/webhook-tester`)"
+      - "traefik.http.routers.webhooktester.priority=1"
+      - "traefik.http.routers.webhooktester.middlewares=default-compress@file,webhooktester" #onereq-ratelimit@file
+      - "traefik.http.routers.webhooktester.tls=true"
+      - "traefik.http.routers.webhooktester.tls.domains[0].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.webhooktester.tls.certResolver=default"
+      - "traefik.http.routers.webhooktester.service=webhooktester"
+
+      - "traefik.http.middlewares.webhooktester.stripprefix.prefixes=/webhook-tester"
+
+      - "traefik.http.services.webhooktester.loadbalancer.server.port=5000"
+    networks:
+      - public-proxy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+networks:
+  public-proxy:
+    external: true
