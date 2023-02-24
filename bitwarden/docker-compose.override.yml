@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  nginx:
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      - "traefik.http.routers.bitwarden.rule=Host(`bitwarden.apogee-dev.com`)"
+      - traefik.http.routers.bitwarden.entrypoints=websecured
+      - traefik.http.routers.bitwarden.tls=true
+      - "traefik.http.routers.bitwarden.tls.domains[0].main=bitwarden.apogee-dev.com"
+      - traefik.http.routers.bitwarden.tls.certResolver=default
+      - traefik.http.routers.bitwarden.service=bitwarden
+
+      - traefik.http.services.bitwarden.loadbalancer.server.port=8090
+
+    networks:
+      - public-proxy
+      - default # internal network for bitwarden components
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+networks:
+  public-proxy:
+    external: true

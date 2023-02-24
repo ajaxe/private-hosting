@@ -4,6 +4,8 @@ services:
   webapp:
     image: webhook-tester:local
     restart: unless-stopped
+    volumes:
+      - "${HOSTING_DIR}/webhook-tester/dpapi-keys:/dpapi-keys"
     environment:
       APP_ConnectionStrings__MainStore: "${MainStore}"
       APP_AppPathPrefix: /webhook-tester

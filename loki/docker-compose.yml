@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3100"
+    networks:
+      - public-proxy
+    volumes:
+      - ${HOSTING_DIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ${HOSTING_DIR}/loki/data:/data/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+networks:
+  public-proxy:
+    external: true
