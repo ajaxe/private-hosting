@@ -44,38 +44,6 @@ services:
         loki-url: "http://localhost:3100/loki/api/v1/push"
         max-size: "200m"
 
-  postgrest:
-    image: postgrest/postgrest
-    container_name: postgrest
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    networks:
-      - public-proxy
-    volumes:
-      - "${HOSTING_DIR}/postgres/secrets:/dbsecrets:ro"
-    environment:
-      - PGRST_DB_URI=@/dbsecrets/pgrst_db_uri
-      - PGRST_DB_ANON_ROLE=anonymous
-      - PGRST_DB_SCHEMA=public,api
-      - PGRST_JWT_SECRET=@/dbsecrets/pgrst_jwt_secret
-    labels:
-      - "traefik.docker.network=public-proxy"
-      - "traefik.enable=true"
-      - "traefik.http.routers.db-api-1.rule=Host(`db1-f95c49fd.apogee-dev.com`)"
-      - "traefik.http.routers.db-api-1.entrypoints=websecured"
-      - "traefik.http.routers.db-api-1.tls=true"
-      - "traefik.http.routers.db-api-1.tls.domains[0].main=db1-f95c49fd.apogee-dev.com"
-      - "traefik.http.routers.db-api-1.tls.certResolver=default"
-      - "traefik.http.routers.db-api-1.service=postgres-api"
-      - "traefik.http.routers.db-api-1.middlewares=onereq-ratelimit@file"
-      - "traefik.http.services.postgres-api.loadbalancer.server.port=3000"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        max-size: "200m"
-
 networks:
   public-proxy:
     external: true

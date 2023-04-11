@@ -1,3 +1,4 @@
+# acme.json must have permissions '600'
 version: "3.7"
 
 services:
@@ -6,6 +7,7 @@ services:
     container_name: traefik # not supported in swarm mode
     image: traefik:v2.8.3 # The official Traefik docker image
     restart: unless-stopped # not supported in swarm mode to docker
+    user: 0:0
     ports:
       - "80:80" # The HTTP port
       - "443:443"
