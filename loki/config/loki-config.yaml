@@ -1,6 +1,9 @@
 # (default configuration)
 auth_enabled: false
 
+analytics:
+  reporting_enabled: false
+
 server:
   http_listen_port: 3100
 
@@ -32,12 +35,12 @@ schema_config:
 
 storage_config:
   boltdb_shipper:
-    active_index_directory: /loki/boltdb-shipper-active
-    cache_location: /loki/boltdb-shipper-cache
+    active_index_directory: /data/loki/boltdb-shipper-active
+    cache_location: /data/loki/boltdb-shipper-cache
     cache_ttl: 24h # Can be increased for faster performance over longer query periods, uses more disk space
     shared_store: filesystem
   filesystem:
-    directory: /loki/chunks
+    directory: /data/loki/chunks
 
 compactor:
   working_directory: /loki/boltdb-shipper-compactor

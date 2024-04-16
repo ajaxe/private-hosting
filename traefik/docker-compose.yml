@@ -5,7 +5,7 @@ services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     container_name: traefik # not supported in swarm mode
-    image: traefik:v2.10 # The official Traefik docker image
+    image: traefik:v2.11 # The official Traefik docker image
     restart: unless-stopped # not supported in swarm mode to docker
     user: 0:0
     ports:

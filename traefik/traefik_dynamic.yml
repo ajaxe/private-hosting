@@ -26,3 +26,16 @@ http:
         usersFile: /htpasswd.api
     default-compress:
       compress: {}
+    x-frame-options-deny:
+      headers:
+        customresponseheaders:
+          X-Frame-Options: DENY
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true
+
+    mintls13:
+      minVersion: VersionTLS13

@@ -14,7 +14,7 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.host-mgmt.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/hostmgmt`)"
         - "traefik.http.routers.host-mgmt.entrypoints=web,websecured"
-        - "traefik.http.routers.host-mgmt.middlewares=default-compress@file"
+        - "traefik.http.routers.host-mgmt.middlewares=default-compress@file,x-frame-options-deny@file"
         - "traefik.http.routers.host-mgmt.tls.domains[0].main=offsite.apogee-dev.com"
         - "traefik.http.routers.host-mgmt.tls.certResolver=default"
         - "traefik.http.routers.host-mgmt.service=host-mgmt"

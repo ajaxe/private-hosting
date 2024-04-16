@@ -19,14 +19,6 @@ entryPoints:
   traefik:
     address: ":8080"
 
-tls:
-  options:
-    default:
-      minVersion: VersionTLS12
-
-    mintls13:
-      minVersion: VersionTLS13
-
 accessLog: {}
 
 api:
