@@ -5,13 +5,14 @@ services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     container_name: traefik # not supported in swarm mode
-    image: traefik:v2.11 # The official Traefik docker image
+    image: traefik:v3.0 # The official Traefik docker image
     restart: unless-stopped # not supported in swarm mode to docker
     user: 0:0
     ports:
       - "80:80" # The HTTP port
       - "443:443"
       - "8080:8080" # The Web UI (enabled by --api)
+      - "8090:8090" # redis manager
     networks:
       - public-proxy
     volumes:
@@ -21,6 +22,7 @@ services:
       - ${HOSTING_DIR}/traefik/acme.json:/acme.json
       - ${HOSTING_DIR}/htpasswd:/htpasswd
       - ${HOSTING_DIR}/htpasswd.api:/htpasswd.api
+      - ${HOSTING_DIR}/local_ssl_certs:/local_ssl_certs
     logging:
       driver: loki
       options:

@@ -5,7 +5,7 @@ services:
     image: docker-registry.apogee-dev.com/host-mgmt
     restart: "always"
     volumes:
-      - "/mnt/ssd/projects/private-hosting/host-mgmt/keys:/home/app/keys"
+      - "${HOSTING_DIR}/host-mgmt/keys:/home/app/keys"
     environment:
       - AppPathPrefix=/hostmgmt
     deploy:

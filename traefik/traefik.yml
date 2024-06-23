@@ -16,8 +16,11 @@ entryPoints:
           scheme: https
   websecured:
     address: ":443"
+    asDefault: true
   traefik:
     address: ":8080"
+  redis-manager:
+    address: ":8090"
 
 accessLog: {}
 

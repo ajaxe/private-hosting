@@ -32,6 +32,13 @@ http:
           X-Frame-Options: DENY
 
 tls:
+  stores:
+    default:
+      defaultGeneratedCert:
+        resolver: default
+        domain:
+          main: apogee-dev.com
+
   options:
     default:
       minVersion: VersionTLS12
@@ -39,3 +46,7 @@ tls:
 
     mintls13:
       minVersion: VersionTLS13
+
+  certificates:
+    - certFile: /local_ssl_certs/dockerhost.local.pem
+      keyFile: /local_ssl_certs/dockerhost.local-key.pem

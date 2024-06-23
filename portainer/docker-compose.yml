@@ -3,7 +3,7 @@ version: '3.7'
 services:
   portainer:
     image: portainer/portainer-ce:latest
-    command: --admin-password-file '/secrets/portainer-admin-pass'
+    command: --admin-password-file '/secrets/portainer-admin-pass' --sslcert /secrets/dockerhost.local.pem --sslkey /secrets/dockerhost.local-key.pem
     restart: always
     ports:
       - "19443:9443"
