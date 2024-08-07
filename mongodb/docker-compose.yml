@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    restart: unless-stopped
+    user: 0:0
+    ports:
+      - "27017:27017"
+    networks:
+      - public-proxy
+    volumes:
+      - "${HOSTING_DIR}/mongodb/storage:/data/db"
+    container_name: mongo-db
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: ${RootUsername}
+      MONGODB_INITDB_ROOT_PASSWORD: ${RootPassword}
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
+
+  webdb:
+    image: webdb/app
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.webdb-app.rule=Host(`dockerhost.local`)"
+      - "traefik.http.routers.webdb-app.entrypoints=webdbapp"
+      - traefik.http.routers.webdb-app.middlewares=internal-basicAuth
+      - "traefik.http.routers.webdb-app.service=webdb-app"
+
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=http://dockerhost.local:4000/login/check"
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
+
+      - "traefik.http.services.webdb-app.loadbalancer.server.port=22071"
+    networks:
+      - public-proxy
+    container_name: webdb
+    environment:
+      PROTECTED_MODE: false
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
+
+networks:
+  public-proxy:
+    external: true

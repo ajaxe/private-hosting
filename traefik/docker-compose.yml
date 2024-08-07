@@ -13,8 +13,12 @@ services:
       - "443:443"
       - "8080:8080" # The Web UI (enabled by --api)
       - "8090:8090" # redis manager
+      - "27000:27000" # webapp-db
+      - "4000:4000" # forward auth
     networks:
       - public-proxy
+    extra_hosts:
+      - "dockerhost.local:192.168.0.200"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
       - ${HOSTING_DIR}/traefik/traefik.yml:/traefik.yml

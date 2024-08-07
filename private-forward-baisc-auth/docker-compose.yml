@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  forwardauth:
+    image: apogee-dev/traefik-forward-auth:local
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.internal-auth.rule=Host(`dockerhost.local`)"
+      - "traefik.http.routers.internal-auth.entrypoints=forwardauth"
+      - "traefik.http.routers.internal-auth.service=internal-auth"
+
+      - "traefik.http.services.internal-auth.loadbalancer.server.port=5000"
+    volumes:
+      - "${HOSTING_DIR}/traefik-forward-auth/dpapi-keys:/dpapi-keys"
+    networks:
+      - public-proxy
+    container_name: webdb-forward-auth
+    environment:
+      App_AppOptions__Username: "${BasicAuthUser}"
+      App_AppOptions__Password: "${BasicAuthPassword}"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
+
+networks:
+  public-proxy:
+    external: true
