@@ -9,6 +9,8 @@ services:
       - "traefik.http.routers.internal-auth.rule=Host(`dockerhost.local`)"
       - "traefik.http.routers.internal-auth.entrypoints=forwardauth"
       - "traefik.http.routers.internal-auth.service=internal-auth"
+      - "traefik.http.routers.internal-auth.tls=true"
+      - "traefik.http.routers.internal-auth.tls.domains[0].main=dockerhost.local"
 
       - "traefik.http.services.internal-auth.loadbalancer.server.port=5000"
     volumes:
@@ -19,6 +21,8 @@ services:
     environment:
       App_AppOptions__Username: "${BasicAuthUser}"
       App_AppOptions__Password: "${BasicAuthPassword}"
+      APP_AppOptions__MongoDbConnection: "${MongoDbConnection}"
+      APP_AppOptions__DatabaseName: "${DatabaseName}"
     logging:
       driver: loki
       options:

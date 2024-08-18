@@ -30,9 +30,13 @@ services:
       - "traefik.http.routers.webdb-app.entrypoints=webdbapp"
       - traefik.http.routers.webdb-app.middlewares=internal-basicAuth
       - "traefik.http.routers.webdb-app.service=webdb-app"
+      - traefik.http.routers.webdb-app.tls=true
+      - traefik.http.routers.webdb-app.tls.domains[0].main=dockerhost.local
 
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=http://dockerhost.local:4000/login/check"
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=https://dockerhost.local:4000/login/check?token=${WebDBToken}"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.tls.insecureSkipVerify=true"
 
       - "traefik.http.services.webdb-app.loadbalancer.server.port=22071"
     networks:
