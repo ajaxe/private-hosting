@@ -1,0 +1,33 @@
+services:
+  tracker:
+    image: apogee-dev/my-route-tracker:local
+    restart: unless-stopped
+    user: 0:0
+    volumes:
+      - "${HOSTING_DIR}/my-route-tracker/dpapi-keys:/dpapi-keys"
+    environment:
+      APP_AppPathPrefix: /my-tracker
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.my-route-tracker.entrypoints=websecured"
+      - "traefik.http.routers.my-route-tracker.rule=Host(`dockerhost.local`) && PathPrefix(`/my-tracker`)"
+      - "traefik.http.routers.my-route-tracker.middlewares=default-compress@file,remove-prefix"
+      - "traefik.http.routers.my-route-tracker.tls=true"
+      - "traefik.http.routers.my-route-tracker.tls.domains[0].main=dockerhost.local"
+      - "traefik.http.routers.my-route-tracker.service=my-route-tracker"
+
+      - "traefik.http.middlewares.remove-prefix.stripprefix.prefixes=/my-tracker"
+
+      - "traefik.http.services.my-route-tracker.loadbalancer.server.port=5000"
+    networks:
+      - public-proxy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+networks:
+  public-proxy:
+    external: true

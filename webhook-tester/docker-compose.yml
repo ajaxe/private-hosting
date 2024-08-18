@@ -4,6 +4,7 @@ services:
   webapp:
     image: webhook-tester:local
     restart: unless-stopped
+    user: 0:0
     volumes:
       - "${HOSTING_DIR}/webhook-tester/dpapi-keys:/dpapi-keys"
     environment:
@@ -17,8 +18,7 @@ services:
       - "traefik.enable=true"
       # rate-limited route
       - "traefik.http.routers.webhooktester-ratelimited.entrypoints=websecured"
-      - traefik.http.routers.webhooktester-ratelimited.rule=Host(`offsite.apogee-dev.com`) && Path(`/{path:(?i:webhook-tester\/session[\/]{0,1})}`)
-      - "traefik.http.routers.webhooktester-ratelimited.priority=2"
+      - traefik.http.routers.webhooktester-ratelimited.rule=Host(`offsite.apogee-dev.com`) && PathRegexp(`^\/(?i:webhook-tester\/session[\/]{0,1})`)
       - "traefik.http.routers.webhooktester-ratelimited.middlewares=default-compress@file,webhooktester,oneperminute-ratelimit@file"
       - "traefik.http.routers.webhooktester-ratelimited.tls=true"
       - "traefik.http.routers.webhooktester-ratelimited.tls.domains[0].main=offsite.apogee-dev.com"
