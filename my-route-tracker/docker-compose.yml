@@ -7,6 +7,8 @@ services:
       - "${HOSTING_DIR}/my-route-tracker/dpapi-keys:/dpapi-keys"
     environment:
       APP_AppPathPrefix: /my-tracker
+      APP_AppOptions__MongoDbConnection: "${MongoDbConnection}"
+      APP_AppOptions__DatabaseName: "${DatabaseName}"
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
@@ -16,8 +18,6 @@ services:
       - "traefik.http.routers.my-route-tracker.tls=true"
       - "traefik.http.routers.my-route-tracker.tls.domains[0].main=dockerhost.local"
       - "traefik.http.routers.my-route-tracker.service=my-route-tracker"
-
-      - "traefik.http.middlewares.remove-prefix.stripprefix.prefixes=/my-tracker"
 
       - "traefik.http.services.my-route-tracker.loadbalancer.server.port=5000"
     networks:

@@ -21,7 +21,7 @@ services:
         max-size: "100m"
 
   webdb:
-    image: webdb/app
+    image: webdb/app:latest
     restart: unless-stopped
     labels:
       - "traefik.docker.network=public-proxy"
@@ -33,7 +33,7 @@ services:
       - traefik.http.routers.webdb-app.tls=true
       - traefik.http.routers.webdb-app.tls.domains[0].main=dockerhost.local
 
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=https://dockerhost.local:4000/login/check?token=${WebDBToken}"
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=https://dockerhost.local/auth/login/check?token=${WebDBToken}"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.trustForwardHeader=true"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.tls.insecureSkipVerify=true"

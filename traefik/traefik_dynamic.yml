@@ -30,6 +30,12 @@ http:
       headers:
         customresponseheaders:
           X-Frame-Options: DENY
+    remove-prefix:
+      stripPrefix:
+        prefixes:
+          - "/auth"
+          - "/my-tracker"
+          - "/webdb"
 
 tls:
   stores:
