@@ -8,7 +8,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.internal-auth.entrypoints=websecured"
       - "traefik.http.routers.internal-auth.rule=Host(`dockerhost.local`) && PathPrefix(`/auth`)"
-      - "traefik.http.routers.internal-auth.middlewares=default-compress@file,remove-prefix"
+      - "traefik.http.routers.internal-auth.middlewares=default-compress@file,remove-prefix@file"
       - "traefik.http.routers.internal-auth.service=internal-auth"
       - "traefik.http.routers.internal-auth.tls=true"
       - "traefik.http.routers.internal-auth.tls.domains[0].main=dockerhost.local"

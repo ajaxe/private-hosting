@@ -5,7 +5,9 @@ services:
     user: 0:0
     volumes:
       - "${HOSTING_DIR}/my-route-tracker/dpapi-keys:/dpapi-keys"
+      - "${HOSTING_DIR}/my-route-tracker/data/secrets.json:/app-data/secrets.json:ro"
     environment:
+      Secrets_File: "/app-data/secrets.json"
       APP_AppPathPrefix: /my-tracker
       APP_AppOptions__MongoDbConnection: "${MongoDbConnection}"
       APP_AppOptions__DatabaseName: "${DatabaseName}"
@@ -14,7 +16,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.my-route-tracker.entrypoints=websecured"
       - "traefik.http.routers.my-route-tracker.rule=Host(`dockerhost.local`) && PathPrefix(`/my-tracker`)"
-      - "traefik.http.routers.my-route-tracker.middlewares=default-compress@file,remove-prefix"
+      - "traefik.http.routers.my-route-tracker.middlewares=default-compress@file,remove-prefix@file"
       - "traefik.http.routers.my-route-tracker.tls=true"
       - "traefik.http.routers.my-route-tracker.tls.domains[0].main=dockerhost.local"
       - "traefik.http.routers.my-route-tracker.service=my-route-tracker"

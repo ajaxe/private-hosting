@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  idsrv:
+    image: apogee-dev/identity-provider:local
+    restart: unless-stopped
+    user: 0:0
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.idsrv.entrypoints=websecured"
+      - "traefik.http.routers.idsrv.rule=Host(`idsrv-1.apogee-dev.com`)"
+      - "traefik.http.routers.idsrv.middlewares=remove-prefix@file"
+      - "traefik.http.routers.idsrv.service=idsrv"
+      - "traefik.http.routers.idsrv.tls=true"
+      - "traefik.http.routers.idsrv.tls.certresolver=default"
+      - "traefik.http.routers.idsrv.tls.domains[0].main=idsrv-1.apogee-dev.com"
+
+      - "traefik.http.services.idsrv.loadbalancer.server.port=5000"
+    volumes:
+      - "${HOSTING_DIR}/identity-provider/dpapi-keys:/dpapi-keys"
+      - "${HOSTING_DIR}/identity-provider/data/:/app-data/:ro"
+    networks:
+      - public-proxy
+
+    environment:
+      #APP_AppPathPrefix: "/auth"
+      APP_Serilog__MinimumLevel__Override__Microsoft: "Debug"
+      APP_Serilog__MinimumLevel__Default: "Debug"
+      Secrets_File: "/app-data/secrets.json"
+      # file based secret configuration
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
+
+networks:
+  public-proxy:
+    external: true
