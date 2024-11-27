@@ -24,7 +24,6 @@ services:
 
     environment:
       #APP_AppPathPrefix: "/auth"
-      APP_Serilog__MinimumLevel__Override__Microsoft: "Debug"
       APP_Serilog__MinimumLevel__Default: "Debug"
       Secrets_File: "/app-data/secrets.json"
       # file based secret configuration

@@ -11,14 +11,15 @@ services:
       APP_ConnectionStrings__MainStore: "${MainStore}"
       APP_AppPathPrefix: /webhook-tester
       APP_Logging__LogLevel__Microsoft.AspNetCore: Information
-      APP_AppOptions__GoogleClientId: ${GoogleClientId}
-      APP_AppOptions__GoogleClientSecret: ${GoogleClientSecret}
+      APP_OAuthOptions__Authority: "${Authority}"
+      APP_OAuthOptions__ClientId: "${ClientId}"
+      APP_OAuthOptions__ClientSecret: "${ClientSecret}"
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
       # rate-limited route
       - "traefik.http.routers.webhooktester-ratelimited.entrypoints=websecured"
-      - traefik.http.routers.webhooktester-ratelimited.rule=Host(`offsite.apogee-dev.com`) && PathRegexp(`^\/(?i:webhook-tester\/session[\/]{0,1})`)
+      - traefik.http.routers.webhooktester-ratelimited.rule=Host(`offsite.apogee-dev.com`) && Method(`POST`) && PathRegexp(`^\/(?i:webhook-tester\/session[\/]{0,1})`)
       - "traefik.http.routers.webhooktester-ratelimited.middlewares=default-compress@file,webhooktester,oneperminute-ratelimit@file"
       - "traefik.http.routers.webhooktester-ratelimited.tls=true"
       - "traefik.http.routers.webhooktester-ratelimited.tls.domains[0].main=offsite.apogee-dev.com"
