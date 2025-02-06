@@ -33,7 +33,7 @@ services:
       - traefik.http.routers.webdb-app.tls=true
       - traefik.http.routers.webdb-app.tls.domains[0].main=*.internal.apogee-dev.com
 
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=https://proxy.internal.apogee-dev.com/auth/login/check?token=${WebDBToken}"
+      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${WebDBToken}"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.trustForwardHeader=true"
       - "traefik.http.middlewares.internal-basicAuth.forwardAuth.tls.insecureSkipVerify=true"
