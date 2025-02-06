@@ -1,0 +1,28 @@
+services:
+  game-server:
+    image: apogee-dev/minecraft:local
+    restart: unless-stopped
+    volumes:
+      - "${HOSTING_DIR}/minecraft/data/server.properties:/home/app/minecraft/server.properties:ro"
+      - "${HOSTING_DIR}/minecraft/data/worlds:/home/app/minecraft/worlds"
+      - "${HOSTING_DIR}/minecraft/data/permissions.json:/home/app/minecraft/permissions.json"
+      - "${HOSTING_DIR}/minecraft/data/allowlist.json:/home/app/minecraft/allowlist.json"
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.udp.routers.minecraft.entrypoints=minecraft"
+
+      - "traefik.udp.routers.minecraft.service=minecraft"
+
+      - "traefik.udp.services.minecraft.loadbalancer.server.port=19132"
+    networks:
+      - public-proxy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+networks:
+  public-proxy:
+    external: true

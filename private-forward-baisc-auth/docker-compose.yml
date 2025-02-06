@@ -7,11 +7,11 @@ services:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
       - "traefik.http.routers.internal-auth.entrypoints=websecured"
-      - "traefik.http.routers.internal-auth.rule=Host(`dockerhost.local`) && PathPrefix(`/auth`)"
+      - "traefik.http.routers.internal-auth.rule=Host(`proxy.internal.apogee-dev.com`) && PathPrefix(`/auth`)"
       - "traefik.http.routers.internal-auth.middlewares=default-compress@file,remove-prefix@file"
       - "traefik.http.routers.internal-auth.service=internal-auth"
       - "traefik.http.routers.internal-auth.tls=true"
-      - "traefik.http.routers.internal-auth.tls.domains[0].main=dockerhost.local"
+      - "traefik.http.routers.internal-auth.tls.domains[0].main=*.internal.apogee-dev.com"
 
       - "traefik.http.services.internal-auth.loadbalancer.server.port=5000"
     volumes:
@@ -28,7 +28,7 @@ services:
     logging:
       driver: loki
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
         max-size: "100m"
 
 networks:

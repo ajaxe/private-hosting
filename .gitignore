@@ -1,4 +1,5 @@
 acme.json
+*.zip
 *.sample
 *.ovpn
 options.json

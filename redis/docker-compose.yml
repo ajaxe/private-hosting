@@ -11,7 +11,7 @@ services:
     logging:
       driver: loki
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
         max-size: "100m"
 
   redis_manager:
@@ -20,11 +20,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=public-proxy
-      - traefik.http.routers.redis-manager.entrypoints=redis-manager
-      - traefik.http.routers.redis-manager.rule=Host(`dockerhost.local`)
+      - traefik.http.routers.redis-manager.entrypoints=websecured
+      - traefik.http.routers.redis-manager.rule=Host(`redis.internal.apogee-dev.com`)
       - traefik.http.routers.redis-manager.middlewares=default-compress@file
       - traefik.http.routers.redis-manager.tls=true
-      - traefik.http.routers.redis-manager.tls.domains[0].main=dockerhost.local
+      - traefik.http.routers.redis-manager.tls.domains[0].main=*.internal.apogee-dev.com
       - traefik.http.routers.redis-manager.service=redis-manager
       - traefik.http.services.redis-manager.loadbalancer.server.port=16379
     networks:
@@ -33,7 +33,7 @@ services:
     logging:
       driver: loki
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
         max-size: "100m"
 
 networks:

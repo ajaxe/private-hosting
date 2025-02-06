@@ -5,7 +5,7 @@ services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     container_name: traefik # not supported in swarm mode
-    image: traefik:v3.0 # The official Traefik docker image
+    image: traefik:v3.2.2 # The official Traefik docker image
     restart: unless-stopped # not supported in swarm mode to docker
     user: 0:0
     ports:
@@ -14,11 +14,12 @@ services:
       - "8080:8080" # The Web UI (enabled by --api)
       - "8090:8090" # redis manager
       - "27000:27000" # webapp-db
+      - "25000:25000/udp" # minecraft
       - "4000:4000" # forward auth
     networks:
       - public-proxy
     extra_hosts:
-      - "dockerhost.local:192.168.0.200"
+      - "proxy.internal.apogee-dev.com:192.168.0.200"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
       - ${HOSTING_DIR}/traefik/traefik.yml:/traefik.yml
@@ -30,7 +31,7 @@ services:
     logging:
       driver: loki
       options:
-        loki-url: "http://dockerhost.local:3100/loki/api/v1/push"
+        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
         max-size: "200m"
 
   grafana:

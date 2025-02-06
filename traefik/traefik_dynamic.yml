@@ -56,3 +56,5 @@ tls:
   certificates:
     - certFile: /local_ssl_certs/dockerhost.local.pem
       keyFile: /local_ssl_certs/dockerhost.local-key.pem
+    - certFile: /local_ssl_certs/_wildcard.internal.apogee-dev.com.pem
+      keyFile: /local_ssl_certs/_wildcard.internal.apogee-dev.com-key.pem
