@@ -39,13 +39,13 @@ services:
       - "traefik.http.routers.app.entrypoints=websecured"
       - "traefik.http.routers.app.rule=Host(`fwd-auth-manager.internal.apogee-dev.com`)"
       - "traefik.http.routers.app.middlewares=default-compress@file"
-      - "traefik.http.routers.app.service=internal-auth"
+      - "traefik.http.routers.app.service=auth-mnager-app"
       - "traefik.http.routers.app.tls=true"
       - "traefik.http.routers.app.tls.domains[0].main=fwd-auth-manager.internal.apogee-dev.com"
 
-      - "traefik.http.services.app.loadbalancer.server.port=8000"
+      - "traefik.http.services.auth-mnager-app.loadbalancer.server.port=8000"
     volumes:
-      - "${HOSTING_DIR}/traefik-forward-auth/manager/config.yaml:/hmoe/app/config.yaml:ro"
+      - "${HOSTING_DIR}/traefik-forward-auth/manager/config.yaml:/home/app/config.yaml:ro"
     networks:
       - public-proxy
     logging:
