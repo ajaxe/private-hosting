@@ -15,10 +15,11 @@ services:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
       - "traefik.http.routers.my-route-tracker.entrypoints=websecured"
-      - "traefik.http.routers.my-route-tracker.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/my-tracker`)"
+      - "traefik.http.routers.my-route-tracker.rule=(Host(`offsite.apogee-dev.com`) || Host(`offsite.internal.apogee-dev.com`)) && PathPrefix(`/my-tracker`)"
       - "traefik.http.routers.my-route-tracker.middlewares=default-compress@file,remove-prefix@file"
       - "traefik.http.routers.my-route-tracker.tls=true"
       - "traefik.http.routers.my-route-tracker.tls.domains[0].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.my-route-tracker.tls.domains[1].main=offsite.internal.apogee-dev.com"
       - "traefik.http.routers.my-route-tracker.service=my-route-tracker"
 
       - "traefik.http.services.my-route-tracker.loadbalancer.server.port=5000"

@@ -1,0 +1,28 @@
+services:
+  site:
+    image: apogee-dev/illuminate-support:local
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.illuminate.entrypoints=websecured"
+      - "traefik.http.routers.illuminate.rule=(Host(`illuminate.apogee-dev.com`) || Host(`illuminate.internal.apogee-dev.com`))"
+      - "traefik.http.routers.illuminate.middlewares=default-compress@file,remove-prefix@file"
+      - "traefik.http.routers.illuminate.tls=true"
+      - "traefik.http.routers.illuminate.tls.certResolver=default"
+      - "traefik.http.routers.illuminate.tls.domains[0].main=illuminate.apogee-dev.com"
+      - "traefik.http.routers.illuminate.tls.domains[1].main=illuminate.internal.apogee-dev.com"
+      - "traefik.http.routers.illuminate.service=illuminate"
+
+      - "traefik.http.services.illuminate.loadbalancer.server.port=8000"
+    networks:
+      - public-proxy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "200m"
+
+networks:
+  public-proxy:
+    external: true

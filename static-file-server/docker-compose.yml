@@ -9,12 +9,12 @@ services:
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
-      - "traefik.http.routers.static-file.rule=Host(`offsite.apogee-dev.com`) && PathPrefix(`/static-files`)"
+      - "traefik.http.routers.static-file.rule=(Host(`offsite.apogee-dev.com`) || Host(`offsite.internal.apogee-dev.com`)) && PathPrefix(`/static-files`)"
       - "traefik.http.routers.static-file.entrypoints=websecured"
       - "traefik.http.routers.static-file.middlewares=onereq-ratelimit@file,default-compress@file,static-file-stripprefix"
       - "traefik.http.routers.static-file.tls=true"
       - "traefik.http.routers.static-file.tls.domains[0].main=offsite.apogee-dev.com"
-      - "traefik.http.routers.static-file.tls.certResolver=default"
+      - "traefik.http.routers.static-file.tls.domains[1].main=offsite.internal.apogee-dev.com"
       - "traefik.http.routers.static-file.service=static-file-server"
 
       - "traefik.http.middlewares.static-file-stripprefix.stripprefix.prefixes=/static-files"

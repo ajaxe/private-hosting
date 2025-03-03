@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   forwardauth:
     image: apogee-dev/traefik-forward-auth:local
@@ -25,6 +24,30 @@ services:
       App_AppOptions__Password: "${BasicAuthPassword}"
       APP_AppOptions__MongoDbConnection: "${MongoDbConnection}"
       APP_AppOptions__DatabaseName: "${DatabaseName}"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
+        max-size: "100m"
+
+  manager:
+    image: apogee-dev/traefik-auth-manager:local
+    restart: unless-stopped
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.entrypoints=websecured"
+      - "traefik.http.routers.app.rule=Host(`fwd-auth-manager.internal.apogee-dev.com`)"
+      - "traefik.http.routers.app.middlewares=default-compress@file"
+      - "traefik.http.routers.app.service=internal-auth"
+      - "traefik.http.routers.app.tls=true"
+      - "traefik.http.routers.app.tls.domains[0].main=fwd-auth-manager.internal.apogee-dev.com"
+
+      - "traefik.http.services.app.loadbalancer.server.port=8000"
+    volumes:
+      - "${HOSTING_DIR}/traefik-forward-auth/manager/config.yaml:/hmoe/app/config.yaml:ro"
+    networks:
+      - public-proxy
     logging:
       driver: loki
       options:

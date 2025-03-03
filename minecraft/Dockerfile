@@ -1,6 +1,6 @@
 FROM ubuntu:24.04 AS build
 
-ARG MinecraftPackage=bedrock-server-1.21.51.02.zip
+ARG MinecraftPackage=bedrock-server-1.21.60.10.zip
 ARG InstallFolder=/home/app/minecraft
 
 ENV LD_LIBRARY_PATH=$InstallFolder
@@ -11,7 +11,7 @@ WORKDIR $InstallFolder
 
 RUN apt-get update -y && apt-get install -y unzip curl
 
-COPY bedrock-server-1.21.51.02.zip .
+COPY $MinecraftPackage .
 
 RUN unzip $MinecraftPackage && rm $MinecraftPackage && chmod +x bedrock_server
 
