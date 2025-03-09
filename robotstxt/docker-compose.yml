@@ -13,6 +13,7 @@ services:
       - "traefik.http.routers.robotstxt.priority=9999"
       - "traefik.http.routers.robotstxt.entrypoints=web,websecured"
       - "traefik.http.routers.robotstxt.tls.domains[0].main=offsite.apogee-dev.com"
+      - "traefik.http.routers.robotstxt.tls.domains[1].main=93f2917home.apogee-dev.com"
       - "traefik.http.routers.robotstxt.tls.certResolver=default"
       - "traefik.http.routers.robotstxt.service=robotstxt"
       - "traefik.http.services.robotstxt.loadbalancer.server.port=80"

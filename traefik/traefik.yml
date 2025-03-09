@@ -14,7 +14,7 @@ entryPoints:
   webdbapp:
     address: :27000
   web:
-    address: :80
+    address: ":80"
     http:
       redirections:
         entryPoint:
@@ -27,6 +27,8 @@ entryPoints:
     address: ":8080"
   redis-manager:
     address: ":8090"
+  minecraft:
+    address: ":25000/udp"
 
 accessLog: {}
 

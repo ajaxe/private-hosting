@@ -7,6 +7,23 @@ http:
         - default-auth@file
       rule: "Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       service: api@internal
+    screencast:
+      entryPoints:
+        - websecured
+        - web
+      rule: "Host(`screencast.apogee-dev.com`)"
+      service: screencast
+      tls:
+        certResolver: default
+        options: no-sni-strict
+        domains:
+          - main: screencast.apogee-dev.com
+
+  services:
+    screencast:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.127:8080"
   middlewares:
     oneperminute-ratelimit:
       rateLimit:
@@ -48,10 +65,14 @@ tls:
   options:
     default:
       minVersion: VersionTLS12
-      sniStrict: true
+      sniStrict: false
 
     mintls13:
       minVersion: VersionTLS13
+
+    no-sni-strict:
+      sniStrict: false
+      minVersion: VersionTLS12
 
   certificates:
     - certFile: /local_ssl_certs/dockerhost.local.pem

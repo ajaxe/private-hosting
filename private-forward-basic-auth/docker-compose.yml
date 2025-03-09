@@ -24,6 +24,7 @@ services:
       App_AppOptions__Password: "${BasicAuthPassword}"
       APP_AppOptions__MongoDbConnection: "${MongoDbConnection}"
       APP_AppOptions__DatabaseName: "${DatabaseName}"
+      APP_AppOptions__AuthCookieDomain: "${AuthCookieDomain}"
     logging:
       driver: loki
       options:

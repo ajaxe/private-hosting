@@ -10,7 +10,7 @@ services:
       labels:
         - "traefik.http.routers.registry.rule=Host(`docker-registry.apogee-dev.com`) && PathPrefix(`/v2`)"
         # per router http to https redirection
-        - "traefik.http.routers.registry.entrypoints=web,websecured"
+        - "traefik.http.routers.registry.entrypoints=websecured"
         - "traefik.http.routers.registry.middlewares=default-auth@file"
         - "traefik.http.routers.registry.service=registry"
         - "traefik.http.routers.registry.tls.domains[0].main=docker-registry.apogee-dev.com"
