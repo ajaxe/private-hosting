@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   mongodb:
-    image: mongodb/mongodb-community-server:latest
+    image: mongodb/mongodb-community-server:7.0.16-ubuntu2204 #latest
     restart: unless-stopped
     user: 0:0
     ports:
