@@ -14,3 +14,5 @@ openvpn-data/
 htpasswd
 htpasswd.api
 .env
+bedrock-server-*/
+mc-config

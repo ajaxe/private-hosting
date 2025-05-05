@@ -2,8 +2,10 @@ services:
   game-server:
     image: apogee-dev/minecraft:local
     restart: unless-stopped
+    environment:
+      MC_GAMEMODE: creative
     volumes:
-      - "${HOSTING_DIR}/minecraft/data/server.properties:/home/app/minecraft/server.properties:ro"
+      - "${HOSTING_DIR}/minecraft/data/server.properties:/home/app/minecraft/data/server.properties:ro"
       - "${HOSTING_DIR}/minecraft/data/worlds:/home/app/minecraft/worlds"
       - "${HOSTING_DIR}/minecraft/data/permissions.json:/home/app/minecraft/permissions.json"
       - "${HOSTING_DIR}/minecraft/data/allowlist.json:/home/app/minecraft/allowlist.json"
