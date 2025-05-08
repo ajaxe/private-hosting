@@ -1,6 +1,6 @@
 FROM ubuntu:25.04 AS build
 
-ARG MinecraftPackage=bedrock-server-1.21.71.01.zip
+ARG MinecraftPackage=bedrock-server-1.21.80.3.zip
 ARG InstallFolder=/home/app/minecraft
 
 ENV LD_LIBRARY_PATH=$InstallFolder
