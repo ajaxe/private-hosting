@@ -1,0 +1,48 @@
+services:
+  game-server:
+    image: apogee-dev/mc-manager:local
+    restart: unless-stopped
+    environment:
+      APP_SERVER_AUTH_TOKEN: ${ServiceToken}
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.mc-mgr.entrypoints=websecured"
+      - "traefik.http.routers.mc-mgr.rule=Host(`mc-manager.internal.apogee-dev.com`) && PathPrefix(`/api/`) && !PathPrefix(`/api/login/check`)"
+      - "traefik.http.routers.mc-mgr.middlewares=default-compress@file,internal-auth"
+      - "traefik.http.routers.mc-mgr.service=mc-manager"
+      - "traefik.http.routers.mc-mgr.tls=true"
+      - "traefik.http.routers.mc-mgr.tls.domains[0].main=mc-manager.internal.apogee-dev.com"
+      - "traefik.http.middlewares.internal-auth.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${ServiceToken}"
+
+      - "traefik.http.routers.mc-mgr-unchecked.entrypoints=websecured"
+      - "traefik.http.routers.mc-mgr-unchecked.rule=Host(`mc-manager.internal.apogee-dev.com`)"
+      - "traefik.http.routers.mc-mgr-unchecked.middlewares=default-compress@file"
+      - "traefik.http.routers.mc-mgr-unchecked.service=mc-manager"
+      - "traefik.http.routers.mc-mgr-unchecked.tls=true"
+      - "traefik.http.routers.mc-mgr-unchecked.tls.domains[0].main=mc-manager.internal.apogee-dev.com"
+
+      - "traefik.http.middlewares.internal-auth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
+      - "traefik.http.middlewares.internal-auth.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.internal-auth.forwardAuth.tls.insecureSkipVerify=true"
+
+      - "traefik.http.services.mc-manager.loadbalancer.server.port=8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - "${HOSTING_DIR}/minecraft/mc-manager/config.yaml:/home/app/config.yaml:ro"
+      - minecraft-worlds:/minecraft/worlds
+    networks:
+      - public-proxy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
+        max-size: "100m"
+
+networks:
+  public-proxy:
+    external: true
+
+volumes:
+  minecraft-worlds:
+    external: true
