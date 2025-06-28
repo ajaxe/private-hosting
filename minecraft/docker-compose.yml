@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     environment:
       MC_GAMEMODE: creative
+      TZ: "America/New_York"
     volumes:
       - "${HOSTING_DIR}/minecraft/data/server.properties:/home/app/minecraft/data/server.properties:ro"
       - "${HOSTING_DIR}/minecraft/data/worlds:/home/app/minecraft/worlds"

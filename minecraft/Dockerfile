@@ -1,9 +1,24 @@
-FROM ubuntu:25.04 AS build
+FROM golang:bookworm AS builder
+# Use the official Golang image as the base image for building the application
+RUN apt-get update && apt-get upgrade -y
 
-ARG MinecraftPackage=bedrock-server-1.21.80.3.zip
+RUN mkdir -p /go/src/github.com/ajaxe/mc-configurator
+WORKDIR /go/src/github.com/ajaxe/mc-configurator
+RUN git clone https://github.com/ajaxe/mc-configurator.git . \
+    && git pull origin main
+RUN go mod download
+
+RUN go build -o ./tmp/linux/mc-config .
+
+
+FROM ubuntu:25.04 AS final
+
+ARG MinecraftPackage=bedrock-server-1.21.90.4.zip
 ARG InstallFolder=/home/app/minecraft
 
 ENV LD_LIBRARY_PATH=$InstallFolder
+
+RUN apt-get update && apt-get upgrade -y
 
 RUN mkdir -p $InstallFolder
 
@@ -12,7 +27,7 @@ WORKDIR $InstallFolder
 RUN apt-get update -y && apt-get install -y unzip curl
 
 COPY $MinecraftPackage .
-COPY mc-config .
+COPY --from=builder "/go/src/github.com/ajaxe/mc-configurator/tmp/linux/mc-config" .
 COPY runner.sh .
 
 RUN unzip $MinecraftPackage && rm $MinecraftPackage && chmod +x bedrock_server \
@@ -20,6 +35,6 @@ RUN unzip $MinecraftPackage && rm $MinecraftPackage && chmod +x bedrock_server \
 
 RUN groupadd -g 999 minecraft && useradd -g minecraft minecraft
 
-EXPOSE 19132
+EXPOSE 19132 25575
 
 ENTRYPOINT [ "./runner.sh" ]
