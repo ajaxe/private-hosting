@@ -2,7 +2,9 @@ version: "3.7"
 services:
   idsrv:
     image: apogee-dev/identity-provider:local
-    restart: unless-stopped
+    extends:
+      file: ../docker-compose.base.yml
+      service: base
     user: 0:0
     labels:
       - "traefik.docker.network=public-proxy"
@@ -20,20 +22,9 @@ services:
     volumes:
       - "${HOSTING_DIR}/identity-provider/dpapi-keys:/dpapi-keys"
       - "${HOSTING_DIR}/identity-provider/data/:/app-data/:ro"
-    networks:
-      - public-proxy
 
     environment:
       #APP_AppPathPrefix: "/auth"
       APP_Serilog__MinimumLevel__Default: "Debug"
       Secrets_File: "/app-data/secrets.json"
       # file based secret configuration
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        max-size: "100m"
-
-networks:
-  public-proxy:
-    external: true

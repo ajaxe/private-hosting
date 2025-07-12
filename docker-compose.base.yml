@@ -1,0 +1,10 @@
+services:
+  base:
+    restart: unless-stopped
+    networks:
+      - public-proxy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
