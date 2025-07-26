@@ -40,3 +40,9 @@ docker compose --env-file ../.env up -d
 ```bash
 docker compose --env-file ../.env -f docker-compose.yml -f ../docker-compose.networks.yml config --quiet
 ```
+
+## Syncing parent .env to compose stacks
+
+```bash
+pwsh -File ./sync_env.ps1
+```

@@ -1,53 +1,59 @@
+include:
+  - path: ../compose.networks.yml
+
 services:
   grafana:
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     image: grafana/grafana:11.1.4
-    restart: unless-stopped
     user: "0"
     volumes:
       - ${HOSTING_DIR}/grafana/data:/var/lib/grafana
       - ${HOSTING_DIR}/grafana/grafana-config:/etc/grafana
-    networks:
-      - public-proxy
     environment:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=public-proxy"
-      - "traefik.http.routers.grafana.entrypoints=websecured"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.internal.apogee-dev.com`)"
-      - "traefik.http.routers.grafana.middlewares=default-compress@file,auth-graf"
-      - "traefik.http.routers.grafana.service=grafana"
-      - "traefik.http.routers.grafana.tls=true"
-      - "traefik.http.routers.grafana.tls.domains[0].main=grafana.internal.apogee-dev.com"
-
-      - "traefik.http.middlewares.auth-graf.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${GrafanaServiceToken}"
-      - "traefik.http.middlewares.auth-graf.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
-      - "traefik.http.middlewares.auth-graf.forwardAuth.trustForwardHeader=true"
-      - "traefik.http.middlewares.auth-graf.forwardAuth.tls.insecureSkipVerify=true"
-
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      - traefik.http.routers.grafana.entrypoints=websecured
+      - traefik.http.routers.grafana.rule=Host(`grafana.internal.apogee-dev.com`)
+      - traefik.http.routers.grafana.middlewares=default-compress@file,auth-graf
+      - traefik.http.routers.grafana.service=grafana
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.routers.grafana.tls.domains[0].main=grafana.internal.apogee-dev.com
+      - traefik.http.middlewares.auth-graf.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${GrafanaServiceToken}
+      - traefik.http.middlewares.auth-graf.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom
+      - traefik.http.middlewares.auth-graf.forwardAuth.trustForwardHeader=true
+      - traefik.http.middlewares.auth-graf.forwardAuth.tls.insecureSkipVerify=true
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
     healthcheck:
       # Grafana's health check endpoint is /api/health
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:3000/api/health
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
   otel-collector:
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     image: otel/opentelemetry-collector:0.130.1
-    restart: unless-stopped
-    command: ["--config=/etc/otel-collector-config.yaml"]
+    command:
+      - --config=/etc/otel-collector-config.yaml
     volumes:
       - ${HOSTING_DIR}/grafana/configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     deploy:
       resources:
         limits:
-          memory: 1g
-          cpus: '1.0'
+          cpus: "1.0"
     ports:
       - 1888:1888
       - 8888:8888
@@ -61,10 +67,11 @@ services:
     depends_on:
       - jaeger
       - prometheus
-
   jaeger:
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     image: jaegertracing/all-in-one:1.71.0
-    restart: unless-stopped
     user: "0"
     environment:
       - LOG_LEVEL=debug
@@ -78,58 +85,48 @@ services:
     volumes:
       - ${HOSTING_DIR}/grafana/jaeger-data:/badger
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=public-proxy"
-      - "traefik.http.routers.jaeger.entrypoints=websecured"
-      - "traefik.http.routers.jaeger.rule=Host(`jaeger.internal.apogee-dev.com`)"
-      - "traefik.http.routers.jaeger.middlewares=default-compress@file,auth-jaeger"
-      - "traefik.http.routers.jaeger.service=jaeger"
-      - "traefik.http.routers.jaeger.tls=true"
-      - "traefik.http.routers.jaeger.tls.domains[0].main=jaeger.internal.apogee-dev.com"
-
-      - "traefik.http.middlewares.auth-jaeger.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${JaegerServiceToken}"
-      - "traefik.http.middlewares.auth-jaeger.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
-      - "traefik.http.middlewares.auth-jaeger.forwardAuth.trustForwardHeader=true"
-      - "traefik.http.middlewares.auth-jaeger.forwardAuth.tls.insecureSkipVerify=true"
-
-      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
-    networks:
-      - public-proxy
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      - traefik.http.routers.jaeger.entrypoints=websecured
+      - traefik.http.routers.jaeger.rule=Host(`jaeger.internal.apogee-dev.com`)
+      - traefik.http.routers.jaeger.middlewares=default-compress@file,auth-jaeger
+      - traefik.http.routers.jaeger.service=jaeger
+      - traefik.http.routers.jaeger.tls=true
+      - traefik.http.routers.jaeger.tls.domains[0].main=jaeger.internal.apogee-dev.com
+      - traefik.http.middlewares.auth-jaeger.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${JaegerServiceToken}
+      - traefik.http.middlewares.auth-jaeger.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom
+      - traefik.http.middlewares.auth-jaeger.forwardAuth.trustForwardHeader=true
+      - traefik.http.middlewares.auth-jaeger.forwardAuth.tls.insecureSkipVerify=true
+      - traefik.http.services.jaeger.loadbalancer.server.port=16686
 
   prometheus:
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     image: prom/prometheus:v3.3.0
-    restart: unless-stopped
     user: 0:0
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.retention.time=60d'
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=60d
     volumes:
       - ${HOSTING_DIR}/grafana/configs/prometheus.yml:/etc/prometheus/prometheus.yml
       - ${HOSTING_DIR}/grafana/prometheus:/prometheus
     deploy:
       resources:
         limits:
-          memory: 1g
-          cpus: '1.0'
+          cpus: "1.0"
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=public-proxy"
-      - "traefik.http.routers.prometheus.entrypoints=websecured"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.apogee-dev.com`)"
-      - "traefik.http.routers.prometheus.middlewares=default-compress@file,auth-prom"
-      - "traefik.http.routers.prometheus.service=prometheus"
-      - "traefik.http.routers.prometheus.tls=true"
-      - "traefik.http.routers.prometheus.tls.domains[0].main=prometheus.internal.apogee-dev.com"
-
-      - "traefik.http.middlewares.auth-prom.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${PrometheusServiceToken}"
-      - "traefik.http.middlewares.auth-prom.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
-      - "traefik.http.middlewares.auth-prom.forwardAuth.trustForwardHeader=true"
-      - "traefik.http.middlewares.auth-prom.forwardAuth.tls.insecureSkipVerify=true"
-
-      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-    networks:
-      - public-proxy
-
-networks:
-  public-proxy:
-    external: true
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      - traefik.http.routers.prometheus.entrypoints=websecured
+      - traefik.http.routers.prometheus.rule=Host(`prometheus.internal.apogee-dev.com`)
+      - traefik.http.routers.prometheus.middlewares=default-compress@file,auth-prom
+      - traefik.http.routers.prometheus.service=prometheus
+      - traefik.http.routers.prometheus.tls=true
+      - traefik.http.routers.prometheus.tls.domains[0].main=prometheus.internal.apogee-dev.com
+      - traefik.http.middlewares.auth-prom.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${PrometheusServiceToken}
+      - traefik.http.middlewares.auth-prom.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom
+      - traefik.http.middlewares.auth-prom.forwardAuth.trustForwardHeader=true
+      - traefik.http.middlewares.auth-prom.forwardAuth.tls.insecureSkipVerify=true
+      - traefik.http.services.prometheus.loadbalancer.server.port=9090
+      

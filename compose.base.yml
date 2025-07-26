@@ -1,5 +1,5 @@
 services:
-  base:
+  x-base-service:
     restart: unless-stopped
     networks:
       - public-proxy
@@ -8,3 +8,7 @@ services:
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
         max-size: "100m"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
