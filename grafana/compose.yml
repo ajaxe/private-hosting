@@ -18,10 +18,10 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector:0.123.0
+    restart: unless-stopped
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
       - ${HOSTING_DIR}/grafana/configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    restart: on-failure
     ports:
       - 1888:1888
       - 8888:8888
@@ -37,16 +37,42 @@ services:
       - prometheus
 
   jaeger:
-    image: jaegertracing/jaeger:2.5.0
+    image: jaegertracing/all-in-one:latest
+    restart: unless-stopped
+    user: "0"
     environment:
       - LOG_LEVEL=debug
-    ports:
-      - 16686:16686
+      - COLLECTOR_OTLP_ENABLED=true
+      # --- Persistence Configuration ---
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+      - BADGER_SPAN_STORE_TTL=1440h # 2months
+    volumes:
+      - ${HOSTING_DIR}/grafana/jaeger-data:/badger
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=public-proxy"
+      - "traefik.http.routers.jaeger.entrypoints=websecured"
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.internal.apogee-dev.com`)"
+      - "traefik.http.routers.jaeger.middlewares=default-compress@file,auth"
+      - "traefik.http.routers.jaeger.service=jaeger"
+      - "traefik.http.routers.jaeger.tls=true"
+      - "traefik.http.routers.jaeger.tls.domains[0].main=jaeger.internal.apogee-dev.com"
+
+      - "traefik.http.middlewares.auth.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${JaegerServiceToken}"
+      - "traefik.http.middlewares.auth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
+      - "traefik.http.middlewares.auth.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth.forwardAuth.tls.insecureSkipVerify=true"
+
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
     networks:
       - public-proxy
 
   prometheus:
     image: prom/prometheus:v3.3.0
+    restart: unless-stopped
     user: 0:0
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
