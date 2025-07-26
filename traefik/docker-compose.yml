@@ -5,7 +5,7 @@ services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     container_name: traefik # not supported in swarm mode
-    image: traefik:v3.4 # The official Traefik docker image
+    image: traefik:v3.5 # The official Traefik docker image
     restart: unless-stopped # not supported in swarm mode to docker
     user: 0:0
     ports:
@@ -33,64 +33,6 @@ services:
       options:
         loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
         max-size: "200m"
-
-  grafana:
-    image: grafana/grafana:11.1.4
-    restart: unless-stopped
-    user: "0"
-    volumes:
-      - ${HOSTING_DIR}/grafana/data:/var/lib/grafana
-      - ${HOSTING_DIR}/grafana/grafana-config:/etc/grafana
-    ports:
-      - 3101:3000
-    networks:
-      - public-proxy
-    environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SECURITY_ALLOW_EMBEDDING=true
-
-  otel-collector:
-    image: otel/opentelemetry-collector:0.123.0
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ${HOSTING_DIR}/grafana/configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    restart: on-failure
-    ports:
-      - 1888:1888
-      - 8888:8888
-      - 8889:8889
-      - 13133:13133
-      - 4317:4317
-      - 4318:4318
-      - 55679:55679
-    networks:
-      - public-proxy
-    depends_on:
-      - jaeger
-      - prometheus
-
-  jaeger:
-    image: jaegertracing/jaeger:2.5.0
-    environment:
-      - LOG_LEVEL=debug
-    ports:
-      - "16686:16686"
-    networks:
-      - public-proxy
-
-  prometheus:
-    image: prom/prometheus:v3.3.0
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    volumes:
-      - ${HOSTING_DIR}/grafana/configs/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ${HOSTING_DIR}/grafana/prometheus:/prometheus
-    ports:
-      - "9095:9090"
-    networks:
-      - public-proxy
 
 networks:
   public-proxy:
