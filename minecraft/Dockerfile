@@ -13,7 +13,7 @@ RUN go build -o ./tmp/linux/mc-config .
 
 FROM ubuntu:25.04 AS final
 
-ARG MinecraftPackage=bedrock-server-1.21.93.1.zip
+ARG MinecraftPackage=bedrock-server-1.21.94.2.zip
 ARG InstallFolder=/home/app/minecraft
 
 ENV LD_LIBRARY_PATH=$InstallFolder
