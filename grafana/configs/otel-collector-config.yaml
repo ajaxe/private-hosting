@@ -6,8 +6,15 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-extensions:
-  health_check: {}
+# Add the memory_limiter processor
+processors:
+  batch:
+  memory_limiter:
+    # Set the memory limit to 75% of the container's memory limit
+    # For example, if your container has a 1GB limit, set this to 750MiB
+    limit_mib: 750
+    # How often to check memory usage
+    check_interval: 1s
 
 exporters:
   otlp:
@@ -19,18 +26,22 @@ exporters:
     resource_to_telemetry_conversion:
       enabled: true
   debug:
-#    verbosity: detailed
+    # verbosity: detailed
 
-processors:
-  batch:
+extensions:
+  health_check: {}
 
 service:
+  # Enable the extensions
+  extensions: [health_check]
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
+      # Memory limiter should be the first processor
+      processors: [memory_limiter, batch]
       exporters: [otlp]
     metrics:
       receivers: [otlp]
-      processors: [batch]
+      # Memory limiter should be the first processor
+      processors: [memory_limiter, batch]
       exporters: [debug, prometheus]
