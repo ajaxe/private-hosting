@@ -1,5 +1,5 @@
 # acme.json must have permissions '600'
-version: "3.7"
+
 
 services:
   # The reverse proxy service (Traefik)

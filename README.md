@@ -31,6 +31,12 @@ Before running these services, ensure you have:
 
 ## Command
 
-```console
+```bash
 docker compose --env-file ../.env up -d
+```
+
+## Validate config
+
+```bash
+docker compose --env-file ../.env -f docker-compose.yml -f ../docker-compose.networks.yml config --quiet
 ```
