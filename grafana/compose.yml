@@ -6,8 +6,6 @@ services:
     volumes:
       - ${HOSTING_DIR}/grafana/data:/var/lib/grafana
       - ${HOSTING_DIR}/grafana/grafana-config:/etc/grafana
-    ports:
-      - 3101:3000
     networks:
       - public-proxy
     environment:
@@ -15,9 +13,32 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=public-proxy"
+      - "traefik.http.routers.grafana.entrypoints=websecured"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.internal.apogee-dev.com`)"
+      - "traefik.http.routers.grafana.middlewares=default-compress@file,auth-graf"
+      - "traefik.http.routers.grafana.service=grafana"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.domains[0].main=grafana.internal.apogee-dev.com"
+
+      - "traefik.http.middlewares.auth-graf.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${GrafanaServiceToken}"
+      - "traefik.http.middlewares.auth-graf.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
+      - "traefik.http.middlewares.auth-graf.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-graf.forwardAuth.tls.insecureSkipVerify=true"
+
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    healthcheck:
+      # Grafana's health check endpoint is /api/health
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.123.0
+    image: otel/opentelemetry-collector:0.130.1
     restart: unless-stopped
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
@@ -40,16 +61,9 @@ services:
     depends_on:
       - jaeger
       - prometheus
-    healthcheck:
-      # Command to run inside the container to check health
-      test: ["CMD", "curl", "-f", "http://localhost:13133"]
-      interval: 30s   # How often to run the check
-      timeout: 10s    # How long to wait for a response
-      retries: 3      # How many times to retry before marking as unhealthy
-      start_period: 40s # Grace period for the container to start up
 
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.71.0
     restart: unless-stopped
     user: "0"
     environment:
