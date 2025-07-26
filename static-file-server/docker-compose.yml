@@ -16,8 +16,18 @@ services:
       - "traefik.http.routers.static-file.tls.domains[0].main=offsite.apogee-dev.com"
       - "traefik.http.routers.static-file.tls.domains[1].main=offsite.internal.apogee-dev.com"
       - "traefik.http.routers.static-file.service=static-file-server"
-
       - "traefik.http.middlewares.static-file-stripprefix.stripprefix.prefixes=/static-files"
+
+      - "traefik.http.routers.www.rule=Host(`www.apogee-dev.com`) || Host(`apogee-dev.com`) || Host(`www.internal.apogee-dev.com`)"
+      - "traefik.http.routers.www.entrypoints=websecured"
+      - "traefik.http.routers.www.middlewares=default-compress@file,www-addprefix"
+      - "traefik.http.routers.www.tls=true"
+      - "traefik.http.routers.www.tls.certResolver=default"
+      - "traefik.http.routers.www.tls.domains[0].main=www.apogee-dev.com"
+      - "traefik.http.routers.www.tls.domains[1].main=apogee-dev.com"
+      - "traefik.http.routers.www.tls.domains[2].main=www.internal.apogee-dev.com"
+      - "traefik.http.routers.www.service=static-file-server"
+      - "traefik.http.middlewares.www-addprefix.addprefix.prefix=/www"
 
       - "traefik.http.services.static-file-server.loadbalancer.server.port=80"
     networks:
