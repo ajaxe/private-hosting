@@ -24,10 +24,16 @@ services:
       - traefik.docker.network=public-proxy
       - traefik.http.routers.redis-manager.entrypoints=websecured
       - traefik.http.routers.redis-manager.rule=Host(`redis.internal.apogee-dev.com`)
-      - traefik.http.routers.redis-manager.middlewares=default-compress@file
+      - traefik.http.routers.redis-manager.middlewares=default-compress@file,auth-redis
       - traefik.http.routers.redis-manager.tls=true
       - traefik.http.routers.redis-manager.tls.domains[0].main=*.internal.apogee-dev.com
       - traefik.http.routers.redis-manager.service=redis-manager
+
+      - "traefik.http.middlewares.auth-redis.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${ServiceToken}"
+      - "traefik.http.middlewares.auth-redis.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
+      - "traefik.http.middlewares.auth-redis.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-redis.forwardAuth.tls.insecureSkipVerify=true"
+
       - traefik.http.services.redis-manager.loadbalancer.server.port=7843
     networks:
       - public-proxy
