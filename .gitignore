@@ -2,6 +2,7 @@ acme.json
 *.zip
 *.sample
 *.ovpn
+*.exe
 options.json
 
 secrets/
