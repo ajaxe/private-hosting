@@ -24,7 +24,7 @@ func main() {
 	dirs, err := os.ReadDir(cwd)
 
 	for _, d := range dirs {
-		if d.IsDir() && d.Name() != ".git" {
+		if d.IsDir() && d.Name() != ".git" && d.Name() != "sync-env" {
 			err := processDir(path.Join(cwd, d.Name()), env)
 			if err != nil {
 				log.Fatal(err)

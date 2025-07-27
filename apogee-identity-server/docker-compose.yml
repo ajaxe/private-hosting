@@ -1,9 +1,12 @@
+include:
+  - path: ../compose.networks.yml
+
 services:
   idsrv:
     image: apogee-dev/identity-provider:local
     extends:
-      file: ../docker-compose.base.yml
-      service: base
+      file: ../compose.base.yml
+      service: x-base-service
     user: 0:0
     labels:
       - "traefik.docker.network=public-proxy"
@@ -23,7 +26,5 @@ services:
       - "${HOSTING_DIR}/identity-provider/data/:/app-data/:ro"
 
     environment:
-      #APP_AppPathPrefix: "/auth"
       APP_Serilog__MinimumLevel__Default: "Debug"
       Secrets_File: "/app-data/secrets.json"
-      # file based secret configuration

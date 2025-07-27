@@ -17,3 +17,4 @@ htpasswd.api
 .env
 bedrock-server-*/
 mc-config
+syncenv
