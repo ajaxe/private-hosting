@@ -1,0 +1,57 @@
+services:
+  caddy:
+    image: caddy:2.10.0
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "${PORT}:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+      - ${HOSTING_DIR}/local_ssl_certs:/local_ssl_certs
+    networks:
+      - caddy_network
+
+  dockge:
+    # Use the official Dockge image, version 1 is the stable release.
+    image: louislam/dockge:1
+    container_name: dockge
+    user: "0"
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dockge-data:/app/data
+      - ${STACK_DIR}:/opt/stacks
+    environment:
+      - DOCKGE_STACKS_DIR=/opt/stacks
+    networks:
+      - caddy_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5001"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  uptime:
+    image: louislam/uptime-kuma:1
+    restart: unless-stopped
+    user: 0:0
+    container_name: uptime-kuma
+    volumes:
+      - ${HOSTING_DIR}/uptime-kuma/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - caddy_network
+
+networks:
+  caddy_network:
+    driver: bridge

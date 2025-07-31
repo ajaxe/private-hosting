@@ -1,0 +1,10 @@
+*.internal.apogee-dev.com {
+    tls /local_ssl_certs/_wildcard.internal.apogee-dev.com.pem /local_ssl_certs/_wildcard.internal.apogee-dev.com-key.pem
+
+    # Route requests based on the host header
+    @dockge host dockge.internal.apogee-dev.com
+    reverse_proxy @dockge dockge:5001
+
+    @uptime host uptime.internal.apogee-dev.com
+    reverse_proxy @uptime uptime:3001
+}
