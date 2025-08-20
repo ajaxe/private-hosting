@@ -10,9 +10,10 @@ http:
     screencast:
       entryPoints:
         - websecured
-        - web
       rule: "Host(`screencast.apogee-dev.com`)"
       service: screencast
+      middlewares:
+        - "screencast"
       tls:
         certResolver: default
         options: no-sni-strict
@@ -25,6 +26,13 @@ http:
         servers:
           - url: "http://192.168.0.127:8080"
   middlewares:
+    screencast:
+      forwardauth:
+        address: https://fwd-auth.apogee-dev.com/login/check?token=e25c7a2a-6310-45b8-a476-e09da04a6705
+        addAuthCookiesToResponse: .fwd-auth-custom
+        trustForwardHeader: true
+        tls:
+          insecureSkipVerify: true
     oneperminute-ratelimit:
       rateLimit:
         average: 1
@@ -47,6 +55,10 @@ http:
       headers:
         customresponseheaders:
           X-Frame-Options: DENY
+    cache-control:
+      headers:
+        customresponseheaders:
+          Cache-Control: private, max-age=3600, must-revalidate
     remove-prefix:
       stripPrefix:
         prefixes:
