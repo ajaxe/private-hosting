@@ -1,12 +1,15 @@
 # acme.json must have permissions '600'
-
+include:
+  - path: ../compose.networks.yml
 
 services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     container_name: traefik # not supported in swarm mode
     image: traefik:v3.5 # The official Traefik docker image
-    restart: unless-stopped # not supported in swarm mode to docker
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     user: 0:0
     ports:
       - "80:80" # The HTTP port
@@ -16,8 +19,6 @@ services:
       - "27000:27000" # webapp-db
       - "25000:25000/udp" # minecraft
       - "4000:4000" # forward auth
-    networks:
-      - public-proxy
     extra_hosts:
       - "proxy.internal.apogee-dev.com:192.168.0.200"
     volumes:
@@ -28,12 +29,3 @@ services:
       - ${HOSTING_DIR}/htpasswd:/htpasswd
       - ${HOSTING_DIR}/htpasswd.api:/htpasswd.api
       - ${HOSTING_DIR}/local_ssl_certs:/local_ssl_certs
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
-        max-size: "200m"
-
-networks:
-  public-proxy:
-    external: true

@@ -1,11 +1,14 @@
-
+include:
+  - path: ../compose.networks.yml
 
 services:
   nginx:
     image: nginx:alpine
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     volumes:
       - "${HOSTING_DIR}/static-file-server/public:/usr/share/nginx/html:ro"
-    restart: unless-stopped
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
@@ -20,7 +23,7 @@ services:
 
       - "traefik.http.routers.www.rule=Host(`www.apogee-dev.com`) || Host(`apogee-dev.com`) || Host(`www.internal.apogee-dev.com`)"
       - "traefik.http.routers.www.entrypoints=websecured"
-      - "traefik.http.routers.www.middlewares=default-compress@file,www-addprefix"
+      - "traefik.http.routers.www.middlewares=default-compress@file,www-addprefix,cache-control@file"
       - "traefik.http.routers.www.tls=true"
       - "traefik.http.routers.www.tls.certResolver=default"
       - "traefik.http.routers.www.tls.domains[0].main=www.apogee-dev.com"
@@ -30,14 +33,4 @@ services:
       - "traefik.http.middlewares.www-addprefix.addprefix.prefix=/www"
 
       - "traefik.http.services.static-file-server.loadbalancer.server.port=80"
-    networks:
-      - public-proxy
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        max-size: "200m"
-
-networks:
-  public-proxy:
-    external: true
+    

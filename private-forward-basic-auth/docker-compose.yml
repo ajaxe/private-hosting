@@ -1,7 +1,12 @@
+include:
+  - path: ../compose.networks.yml
+
 services:
   forwardauth:
     image: apogee-dev/traefik-forward-auth:local
-    restart: unless-stopped
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
@@ -17,8 +22,6 @@ services:
       - "traefik.http.services.internal-auth.loadbalancer.server.port=5000"
     volumes:
       - "${HOSTING_DIR}/traefik-forward-auth/dpapi-keys:/dpapi-keys"
-    networks:
-      - public-proxy
     container_name: webdb-forward-auth
     environment:
       App_AppOptions__Username: "${BasicAuthUser}"
@@ -27,15 +30,12 @@ services:
       APP_AppOptions__DatabaseName: "${DatabaseName}"
       APP_AppOptions__AuthCookieDomain: "${AuthCookieDomain}"
       APP_ConnectionStrings__cache: "${REDIS}"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
-        max-size: "100m"
 
   manager:
     image: apogee-dev/traefik-auth-manager:local
-    restart: unless-stopped
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
@@ -49,14 +49,3 @@ services:
       - "traefik.http.services.auth-manager-app.loadbalancer.server.port=8000"
     volumes:
       - "${HOSTING_DIR}/traefik-forward-auth/manager/config.yaml:/home/app/config.yaml:ro"
-    networks:
-      - public-proxy
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
-        max-size: "100m"
-
-networks:
-  public-proxy:
-    external: true
