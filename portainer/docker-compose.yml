@@ -1,19 +1,19 @@
+include:
+  - path: ../compose.networks.yml
+
 services:
   portainer:
     image: portainer/portainer-ce:latest
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    user: 0:0
     command: --admin-password-file '/secrets/portainer-admin-pass' --sslcert /certs/_wildcard.internal.apogee-dev.com.pem --sslkey /certs/_wildcard.internal.apogee-dev.com-key.pem
-    restart: always
     ports:
       - "19443:9443"
-    networks:
-      - public-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - "${HOSTING_DIR}/portainer/data:/data"
       - "${HOSTING_DIR}/portainer/secrets:/secrets"
       - "${HOSTING_DIR}/local_ssl_certs:/certs"
     container_name: portainer # not supported in swarm mode
-
-networks:
-  public-proxy:
-    external: true
