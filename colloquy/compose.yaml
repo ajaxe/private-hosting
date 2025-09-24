@@ -1,0 +1,57 @@
+include:
+  - path: ../compose.networks.yml
+services:
+  backend:
+    image: apogee-dev/colloquy-api:latest
+    # container_name: colloquy-backend
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT}
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      SESSION_SECRET: ${SESSION_SECRET}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
+      OIDC_ISSUER_URL: ${OIDC_ISSUER_URL}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_CALLBACK_URL: ${OIDC_CALLBACK_URL}
+      OIDC_LOGOUT_CALLBACK_URL: ${OIDC_LOGOUT_CALLBACK_URL}
+    labels:
+      # --- Traefik Labels for the Backend ---
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      # Create a router to handle API and auth traffic
+      - traefik.http.routers.colloquy-backend.rule=Host(`colloquy.apogee-dev.com`)
+        && (PathPrefix(`/api/`) || PathPrefix(`/auth/`) ||
+        PathPrefix(`/documentation`))
+      - traefik.http.routers.colloquy-backend.service=colloquy-backend-svc
+      - traefik.http.routers.colloquy-backend.entrypoints=websecured
+      - traefik.http.routers.colloquy-backend.tls=true
+      - traefik.http.routers.colloquy-backend.tls.certresolver=default
+      - traefik.http.routers.colloquy-backend.tls.domains[0].main=colloquy.apogee-dev.com
+      # Define the service that points to this container
+      - traefik.http.services.colloquy-backend-svc.loadbalancer.server.port=${PORT}
+  frontend:
+    image: apogee-dev/colloquy-ui:latest
+    # container_name: colloquy-frontendbackend
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    labels:
+      # --- Traefik Labels for the Frontend ---
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      # Create a router for all other traffic (the SPA)
+      - traefik.http.routers.colloquy-frontend.rule=Host(`colloquy.apogee-dev.com`)
+      - traefik.http.routers.colloquy-frontend.service=colloquy-frontend-svc
+      - traefik.http.routers.colloquy-frontend.entrypoints=websecured
+      - traefik.http.routers.colloquy-frontend.tls=true
+      - traefik.http.routers.colloquy-frontend.tls.certresolver=default
+      - traefik.http.routers.colloquy-frontend.tls.domains[0].main=colloquy.apogee-dev.com
+      - traefik.http.routers.colloquy-frontend.priority=1 # Lower priority to let the backend rule match first
+      # Define the service that points to this container (Nginx serves on port 80)
+      - traefik.http.services.colloquy-frontend-svc.loadbalancer.server.port=80
+networks: {}

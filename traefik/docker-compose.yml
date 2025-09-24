@@ -21,6 +21,8 @@ services:
       - "4000:4000" # forward auth
     extra_hosts:
       - "proxy.internal.apogee-dev.com:192.168.0.200"
+    environment:
+      - OTEL_PROPAGATORS=tracecontext,baggage,jaeger
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
       - ${HOSTING_DIR}/traefik/traefik.yml:/traefik.yml
