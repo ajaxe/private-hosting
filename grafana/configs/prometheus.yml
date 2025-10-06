@@ -3,4 +3,13 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ["otel-collector:8889"]
-      - targets: ["otel-collector:8888"]
+  - job_name: 'cadvisor'
+    # How often to scrape metrics from cAdvisor
+    scrape_interval: 15s
+    static_configs:
+      # Replace <your_docker_host_ip> with the actual IP address
+      # of the machine where cAdvisor is running.
+      - targets: ['cadvisor:8080']
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['reverse-proxy:8080']

@@ -1,6 +1,5 @@
 include:
   - path: ../compose.networks.yml
-
 services:
   site:
     image: apogee-dev/illuminate-support:local
@@ -8,15 +7,16 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     labels:
-      - "traefik.docker.network=public-proxy"
-      - "traefik.enable=true"
-      - "traefik.http.routers.illuminate.entrypoints=websecured"
-      - "traefik.http.routers.illuminate.rule=(Host(`illuminate.apogee-dev.com`) || Host(`illuminate.internal.apogee-dev.com`))"
-      - "traefik.http.routers.illuminate.middlewares=default-compress@file,remove-prefix@file"
-      - "traefik.http.routers.illuminate.tls=true"
-      - "traefik.http.routers.illuminate.tls.certResolver=default"
-      - "traefik.http.routers.illuminate.tls.domains[0].main=illuminate.apogee-dev.com"
-      - "traefik.http.routers.illuminate.tls.domains[1].main=illuminate.internal.apogee-dev.com"
-      - "traefik.http.routers.illuminate.service=illuminate"
-
-      - "traefik.http.services.illuminate.loadbalancer.server.port=8000"
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
+      - traefik.http.routers.illuminate.entrypoints=websecured
+      - traefik.http.routers.illuminate.rule=(Host(`illuminate.apogee-dev.com`)
+        || Host(`illuminate.internal.apogee-dev.com`))
+      - traefik.http.routers.illuminate.middlewares=default-compress@file,remove-prefix@file
+      - traefik.http.routers.illuminate.tls=true
+      - traefik.http.routers.illuminate.tls.certResolver=default
+      - traefik.http.routers.illuminate.tls.domains[0].main=illuminate.apogee-dev.com
+      - traefik.http.routers.illuminate.tls.domains[1].main=illuminate.internal.apogee-dev.com
+      - traefik.http.routers.illuminate.service=illuminate
+      - traefik.http.services.illuminate.loadbalancer.server.port=8000
+networks: {}

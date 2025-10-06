@@ -32,6 +32,16 @@ entryPoints:
 
 accessLog: {}
 
+metrics:
+  addInternals: true
+  otlp:
+    http:
+      endpoint: http://otel-collector:4318/v1/metrics
+    grpc:
+      endpoint: otel-collector:4317
+      insecure: true
+  prometheus: {}
+
 api:
   insecure: true
   dashboard: true

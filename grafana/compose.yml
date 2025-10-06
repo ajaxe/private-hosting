@@ -1,6 +1,5 @@
 include:
   - path: ../compose.networks.yml
-
 services:
   grafana:
     extends:
@@ -62,8 +61,6 @@ services:
       - 4317:4317
       - 4318:4318
       - 55679:55679
-    networks:
-      - public-proxy
     depends_on:
       - jaeger
       - prometheus
@@ -73,6 +70,10 @@ services:
       service: x-base-service
     image: jaegertracing/all-in-one:1.71.0
     user: "0"
+    ports:
+      - 16686:16686
+      - 4317:4317 # OTLP gRPC <-- FIXES THE ERROR
+      - 4318:4318 # OTLP HTTP
     environment:
       - LOG_LEVEL=debug
       - COLLECTOR_OTLP_ENABLED=true
@@ -98,7 +99,6 @@ services:
       - traefik.http.middlewares.auth-jaeger.forwardAuth.trustForwardHeader=true
       - traefik.http.middlewares.auth-jaeger.forwardAuth.tls.insecureSkipVerify=true
       - traefik.http.services.jaeger.loadbalancer.server.port=16686
-
   prometheus:
     extends:
       file: ../compose.base.yml
@@ -115,6 +115,7 @@ services:
       resources:
         limits:
           cpus: "1.0"
+          memory: 1g
     labels:
       - traefik.enable=true
       - traefik.docker.network=public-proxy
@@ -129,4 +130,30 @@ services:
       - traefik.http.middlewares.auth-prom.forwardAuth.trustForwardHeader=true
       - traefik.http.middlewares.auth-prom.forwardAuth.tls.insecureSkipVerify=true
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
-      
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+    labels:
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
+      - traefik.http.routers.cadvisor.entrypoints=websecured
+      - traefik.http.routers.cadvisor.rule=Host(`cadvisor.internal.apogee-dev.com`)
+      - traefik.http.routers.cadvisor.middlewares=default-compress@file # ,internal-auth
+      - traefik.http.routers.cadvisor.service=cadvisor
+      - traefik.http.routers.cadvisor.tls=true
+      - traefik.http.routers.cadvisor.tls.domains[0].main=cadvisor.internal.apogee-dev.com
+      # - traefik.http.middlewares.internal-auth.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${ServiceToken}
+      # - traefik.http.middlewares.internal-auth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom
+      # - traefik.http.middlewares.internal-auth.forwardAuth.trustForwardHeader=true
+      # - traefik.http.middlewares.internal-auth.forwardAuth.tls.insecureSkipVerify=true
+      - traefik.http.services.cadvisor.loadbalancer.server.port=8080
+networks: {}
