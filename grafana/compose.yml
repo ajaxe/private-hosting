@@ -68,23 +68,18 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
-    image: jaegertracing/all-in-one:2.11.0
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.11.0
     user: "0"
-    ports:
-      - 16686:16686
-      - 9317:4317 # OTLP gRPC <-- FIXES THE ERROR
-      - 9318:4318 # OTLP HTTP
+    command:
+      - --config=/etc/jaeger/config.yaml
     environment:
       - LOG_LEVEL=debug
       - COLLECTOR_OTLP_ENABLED=true
-      # --- Persistence Configuration ---
-      - SPAN_STORAGE_TYPE=badger
-      - BADGER_EPHEMERAL=false
-      - BADGER_DIRECTORY_VALUE=/badger/data
-      - BADGER_DIRECTORY_KEY=/badger/key
-      - BADGER_SPAN_STORE_TTL=1440h # 2months
     volumes:
-      - ${HOSTING_DIR}/grafana/jaeger-data:/badger
+      - ${HOSTING_DIR}/grafana/jaeger-data:/tmp/jaeger
+      - ${HOSTING_DIR}/grafana/jaeger-archive:/tmp/jaeger_archive
+      - ${HOSTING_DIR}/grafana/configs/jaeger-config.yaml:/etc/jaeger/config.yaml
+      - ${HOSTING_DIR}/grafana/configs/jaeger-config-ui.json:/cmd/jaeger/config-ui.json
     labels:
       - traefik.enable=true
       - traefik.docker.network=public-proxy
