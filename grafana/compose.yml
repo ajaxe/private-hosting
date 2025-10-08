@@ -68,12 +68,12 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
-    image: jaegertracing/all-in-one:1.71.0
+    image: jaegertracing/all-in-one:2.11.0
     user: "0"
     ports:
       - 16686:16686
-      - 4317:4317 # OTLP gRPC <-- FIXES THE ERROR
-      - 4318:4318 # OTLP HTTP
+      - 9317:4317 # OTLP gRPC <-- FIXES THE ERROR
+      - 9318:4318 # OTLP HTTP
     environment:
       - LOG_LEVEL=debug
       - COLLECTOR_OTLP_ENABLED=true
