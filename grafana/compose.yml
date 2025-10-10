@@ -45,6 +45,7 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     image: otel/opentelemetry-collector:0.130.1
+    container_name: otel-collector
     command:
       - --config=/etc/otel-collector-config.yaml
     volumes:

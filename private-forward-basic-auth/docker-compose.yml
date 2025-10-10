@@ -36,6 +36,10 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_EXPORTER_OTLP_TRACES_INSECURE : true
+      OTEL_EXPORTER_OTLP_METRICS_INSECURE : true
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
