@@ -62,38 +62,22 @@ services:
       - 4318:4318
       - 55679:55679
     depends_on:
-      - jaeger
+      - tempo
       - prometheus
-  jaeger:
+  tempo:
+    image: grafana/tempo:2.8.0
+    user: "0"
     extends:
       file: ../compose.base.yml
       service: x-base-service
-    image: cr.jaegertracing.io/jaegertracing/jaeger:2.11.0
-    user: "0"
-    command:
-      - --config=/etc/jaeger/config.yaml
-    environment:
-      - LOG_LEVEL=debug
-      - COLLECTOR_OTLP_ENABLED=true
+    command: ["-config.file=/etc/tempo.yaml"]
     volumes:
-      - ${HOSTING_DIR}/grafana/jaeger-data:/tmp/jaeger
-      - ${HOSTING_DIR}/grafana/jaeger-archive:/tmp/jaeger_archive
-      - ${HOSTING_DIR}/grafana/configs/jaeger-config.yaml:/etc/jaeger/config.yaml
-      - ${HOSTING_DIR}/grafana/configs/jaeger-config-ui.json:/cmd/jaeger/config-ui.json
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=public-proxy
-      - traefik.http.routers.jaeger.entrypoints=websecured
-      - traefik.http.routers.jaeger.rule=Host(`jaeger.internal.apogee-dev.com`)
-      - traefik.http.routers.jaeger.middlewares=default-compress@file,auth-jaeger
-      - traefik.http.routers.jaeger.service=jaeger
-      - traefik.http.routers.jaeger.tls=true
-      - traefik.http.routers.jaeger.tls.domains[0].main=jaeger.internal.apogee-dev.com
-      - traefik.http.middlewares.auth-jaeger.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${JaegerServiceToken}
-      - traefik.http.middlewares.auth-jaeger.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom
-      - traefik.http.middlewares.auth-jaeger.forwardAuth.trustForwardHeader=true
-      - traefik.http.middlewares.auth-jaeger.forwardAuth.tls.insecureSkipVerify=true
-      - traefik.http.services.jaeger.loadbalancer.server.port=16686
+      - ${HOSTING_DIR}/grafana/configs/tempo.yaml:/etc/tempo.yaml
+      - ${HOSTING_DIR}/grafana/tempo-data:/var/tempo
+    ports:
+      - "4317"  # OTLP gRPC
+      - "4318"  # OTLP HTTP
+      - "3200"  # Tempo API
   prometheus:
     extends:
       file: ../compose.base.yml
@@ -127,7 +111,11 @@ services:
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
+    user: "0"
     container_name: cadvisor
+    command:
+      - --disable_metrics=disk,process
+      - --housekeeping_interval=15s
     extends:
       file: ../compose.base.yml
       service: x-base-service
@@ -136,6 +124,7 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
     restart: unless-stopped
     labels:
       - traefik.docker.network=public-proxy

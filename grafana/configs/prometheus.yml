@@ -1,14 +1,13 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
 scrape_configs:
   - job_name: "otel-collector"
-    scrape_interval: 5s
     static_configs:
       - targets: ["otel-collector:8889"]
   - job_name: 'cadvisor'
-    # How often to scrape metrics from cAdvisor
-    scrape_interval: 15s
     static_configs:
-      # Replace <your_docker_host_ip> with the actual IP address
-      # of the machine where cAdvisor is running.
       - targets: ['cadvisor:8080']
   - job_name: 'traefik'
     static_configs:

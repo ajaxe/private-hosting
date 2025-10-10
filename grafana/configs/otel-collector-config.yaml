@@ -17,8 +17,8 @@ processors:
     check_interval: 1s
 
 exporters:
-  otlp:
-    endpoint: jaeger:4317
+  otlp/traces:
+    endpoint: tempo:4317
     tls:
       insecure: true
   prometheus:
@@ -39,7 +39,7 @@ service:
       receivers: [otlp]
       # Memory limiter should be the first processor
       processors: [memory_limiter, batch]
-      exporters: [otlp]
+      exporters: [otlp/traces]
     metrics:
       receivers: [otlp]
       # Memory limiter should be the first processor
