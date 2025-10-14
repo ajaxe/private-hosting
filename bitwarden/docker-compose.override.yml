@@ -15,11 +15,6 @@ services:
     networks:
       - public-proxy
       - default # internal network for bitwarden components
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        max-size: "200m"
 
 networks:
   public-proxy:

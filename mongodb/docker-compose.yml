@@ -14,11 +14,6 @@ services:
     environment:
       MONGODB_INITDB_ROOT_USERNAME: ${RootUsername}
       MONGODB_INITDB_ROOT_PASSWORD: ${RootPassword}
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
-        max-size: "100m"
 
   webdb:
     image: webdb/app:latest
@@ -44,11 +39,6 @@ services:
     container_name: webdb
     environment:
       PROTECTED_MODE: false
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
-        max-size: "100m"
 
 networks:
   public-proxy:

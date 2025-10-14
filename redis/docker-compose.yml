@@ -8,11 +8,6 @@ services:
     networks:
       - public-proxy
     container_name: redis-db
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        max-size: "100m"
 
   redis_manager:
     image: patrikx3/p3x-redis-ui:2025.4.129
@@ -37,11 +32,6 @@ services:
       - traefik.http.services.redis-manager.loadbalancer.server.port=7843
     networks:
       - public-proxy
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://proxy.internal.apogee-dev.com:3100/loki/api/v1/push"
-        max-size: "100m"
 
 networks:
   public-proxy:
