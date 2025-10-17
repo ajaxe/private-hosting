@@ -19,6 +19,9 @@ services:
       OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
       OIDC_CALLBACK_URL: ${OIDC_CALLBACK_URL}
       OIDC_LOGOUT_CALLBACK_URL: ${OIDC_LOGOUT_CALLBACK_URL}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_TRACES_INSECURE : true
+      OTEL_EXPORTER_OTLP_METRICS_INSECURE : true
     labels:
       # --- Traefik Labels for the Backend ---
       - traefik.enable=true

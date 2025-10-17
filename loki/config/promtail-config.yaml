@@ -18,3 +18,16 @@ scrape_configs:
     - source_labels: ['__meta_docker_container_name']
       regex: '/(.*)'
       target_label: 'container'
+    # Step 1: Extract the folder name (e.g., "colloquy") from the directory path.
+    # This creates a temporary internal label named `__tmp_stack_name`.
+    - source_labels: ['__meta_docker_container_label_com_docker_compose_project_working_dir']
+      target_label: '__tmp_stack_name'
+      regex: '.*/([^/]+)'
+      replacement: '$1'
+
+    # Step 2: Combine the temporary stack name with the service name.
+    # This takes `__tmp_stack_name` and `com.docker.compose.service`, joins them
+    # with a hyphen, and assigns the result to the final 'app' label.
+    - source_labels: [ '__tmp_stack_name', '__meta_docker_container_label_com_docker_compose_service' ]
+      separator: '-'
+      target_label: 'app'
