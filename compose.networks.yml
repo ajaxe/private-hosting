@@ -1,3 +1,5 @@
 networks:
   public-proxy:
     external: true
+  dockge_caddy_network:
+    external: true

@@ -85,6 +85,8 @@ services:
       service: x-base-service
     image: prom/prometheus:v3.3.0
     user: 0:0
+    networks:
+      - dockge_caddy_network
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=60d
