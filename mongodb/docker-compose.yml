@@ -1,13 +1,18 @@
-
+include:
+  - path: ../compose.networks.yml
 services:
   mongodb:
-    image: mongodb/mongodb-community-server:7.0.16-ubuntu2204 #latest
-    restart: unless-stopped
+    image: mongodb/mongodb-community-server:7.0.16-ubuntu2204
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     user: 0:0
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     ports:
       - "27017:27017"
-    networks:
-      - public-proxy
     volumes:
       - "${HOSTING_DIR}/mongodb/storage:/data/db"
     container_name: mongo-db
@@ -18,28 +23,23 @@ services:
   webdb:
     image: webdb/app:latest
     restart: unless-stopped
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
       - "traefik.http.routers.webdb-app.rule=Host(`webdb.internal.apogee-dev.com`)"
       - "traefik.http.routers.webdb-app.entrypoints=websecured"
-      - traefik.http.routers.webdb-app.middlewares=internal-basicAuth
+      - traefik.http.routers.webdb-app.middlewares=webdb-header,fwdauth-global@file
       - "traefik.http.routers.webdb-app.service=webdb-app"
       - traefik.http.routers.webdb-app.tls=true
       - traefik.http.routers.webdb-app.tls.domains[0].main=*.internal.apogee-dev.com
 
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.address=https://fwd-auth.internal.apogee-dev.com/login/check?token=${WebDBToken}"
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.addAuthCookiesToResponse=.fwd-auth-custom"
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.trustForwardHeader=true"
-      - "traefik.http.middlewares.internal-basicAuth.forwardAuth.tls.insecureSkipVerify=true"
+      - traefik.http.middlewares.webdb-header.headers.customrequestheaders.X-Service-Token=${WebDBToken}
 
       - "traefik.http.services.webdb-app.loadbalancer.server.port=22071"
-    networks:
-      - public-proxy
     container_name: webdb
     environment:
       PROTECTED_MODE: false
 
-networks:
-  public-proxy:
-    external: true

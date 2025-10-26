@@ -33,6 +33,16 @@ http:
         trustForwardHeader: true
         tls:
           insecureSkipVerify: true
+    fwdauth-global:
+      forwardauth:
+        address: "https://fwd-auth.internal.apogee-dev.com/login/check"
+        addAuthCookiesToResponse:
+          - ".fwd-auth-internal.apogee-dev.com"
+          - ".fwd-auth-apogee-dev.com"
+          - ".fwd-auth-custom"
+        trustForwardHeader: true
+        tls:
+          insecureSkipVerify: true
     oneperminute-ratelimit:
       rateLimit:
         average: 1

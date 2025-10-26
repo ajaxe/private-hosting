@@ -10,9 +10,14 @@ services:
     labels:
       - traefik.docker.network=public-proxy
       - traefik.enable=true
+
+      - traefik.http.routers.idsrv-blocker.rule=Host(`srv-1.apogee-dev.com`) && Path(`/metrics`)
+      - traefik.http.routers.idsrv-blocker.priority=100
+      - traefik.http.routers.idsrv-blocker.service=noop@internal
+
       - traefik.http.routers.idsrv.entrypoints=websecured
-      - traefik.http.routers.idsrv.rule=Host(`idsrv-1.apogee-dev.com`) ||
-        Host(`idsrv-1.internal.apogee-dev.com`)
+      - traefik.http.routers.idsrv.rule=Host(`idsrv-1.apogee-dev.com`) || Host(`idsrv-1.internal.apogee-dev.com`)
+      - traefik.http.routers.idsrv.priority=50
       - traefik.http.routers.idsrv.middlewares=remove-prefix@file
       - traefik.http.routers.idsrv.service=idsrv
       - traefik.http.routers.idsrv.tls=true
@@ -26,4 +31,3 @@ services:
     environment:
       APP_Serilog__MinimumLevel__Default: Debug
       Secrets_File: /app-data/secrets.json
-networks: {}
