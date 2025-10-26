@@ -46,3 +46,15 @@ docker compose --env-file ../.env -f docker-compose.yml -f ../docker-compose.net
 ```bash
 pwsh -File ./sync_env.ps1
 ```
+
+## Configuration
+
+### Adding Traefik Forward Authentication
+
+For any service needing forward authentication on the Traefik instance, set last middleware to _"fwdauth-global"_ defined in _traefik/traefik_dynamic.yml_. For the service then set the _Servicetoken_ using _Headers_ middleware like following docker label. We will add custom header `X-Service-Token` to every request to identify the service with internal forward authentication service.
+
+```yaml
+labels:
+  # other labels
+  - traefik.http.middlewares.[middleware-name].headers.customrequestheaders.X-Service-Token=${ServiceToken}
+```
