@@ -31,3 +31,30 @@ services:
     environment:
       APP_Serilog__MinimumLevel__Default: Debug
       Secrets_File: /app-data/secrets.json
+
+  spa:
+    image: apogee-dev/identity-provider-spa:local
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    environment:
+      - API_URL_BASE=/manager
+      - OIDC_AUTHORITY=https://idsrv-1.apogee-dev.com
+      - OIDC_CLIENT_ID=app_client_manager
+    labels:
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
+
+      - traefik.http.routers.idsrv-spa.entrypoints=websecured
+      - traefik.http.routers.idsrv-spa.rule=Host(`idsrv-1.apogee-dev.com`) && PathPrefix(`/manager`)
+      - traefik.http.routers.idsrv-spa.middlewares=idsrv-spa-slash,idsrv-spa-strip,default-compress@file
+      - traefik.http.routers.idsrv-spa.service=idsrv-spa
+      - traefik.http.routers.idsrv-spa.tls=true
+      - traefik.http.routers.idsrv-spa.tls.certResolver=default
+      - traefik.http.routers.idsrv-spa.tls.domains[0].main=idsrv-1.apogee-dev.com
+
+      - traefik.http.middlewares.idsrv-spa-strip.stripprefix.prefixes=/manager
+      - traefik.http.middlewares.idsrv-spa-slash.redirectregex.regex=^(.*)/manager$$
+      - traefik.http.middlewares.idsrv-spa-slash.redirectregex.replacement=$${1}/manager/
+
+      - traefik.http.services.idsrv-spa.loadbalancer.server.port=80

@@ -30,6 +30,7 @@ services:
       APP_AppOptions__DatabaseName: "${DatabaseName}"
       APP_AppOptions__AuthCookieDomain: "${AuthCookieDomain}"
       APP_ConnectionStrings__cache: "${REDIS}"
+      APP_OTLP_ENDPOINT_URL: "${OTLP_ENDPOINT_URL}"
 
   manager:
     image: apogee-dev/traefik-auth-manager:local

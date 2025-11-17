@@ -1,13 +1,15 @@
+include:
+  - path: ../compose.networks.yml
 services:
   loki:
     container_name: loki
     image: grafana/loki:3.4.4
-    restart: unless-stopped
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     user: 0:0
     ports:
       - "0.0.0.0:3100:3100"
-    networks:
-      - public-proxy
     volumes:
       - ${HOSTING_DIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
       - ${HOSTING_DIR}/loki/data:/data/loki
@@ -27,6 +29,9 @@ services:
 
   promtail:
     image: grafana/promtail:latest
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     volumes:
       - ${HOSTING_DIR}/loki/config/promtail-config.yaml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
@@ -34,9 +39,3 @@ services:
     command: -config.file=/etc/promtail/config.yml
     ports:
       - "9080:9080"
-    networks:
-      - public-proxy
-
-networks:
-  public-proxy:
-    external: true

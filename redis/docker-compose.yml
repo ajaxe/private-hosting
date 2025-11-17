@@ -1,17 +1,20 @@
-
+include:
+  - path: ../compose.networks.yml
 services:
   redis:
     image: redis:7-alpine
-    restart: unless-stopped
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     ports:
       - "6379:6379"
-    networks:
-      - public-proxy
     container_name: redis-db
 
   redis_manager:
-    image: patrikx3/p3x-redis-ui:2025.4.129
-    restart: unless-stopped
+    image: patrikx3/p3x-redis-ui:2025.10.110
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
     volumes:
       - "${HOSTING_DIR}/redis/manager/settings:/settings"
     labels:
@@ -27,9 +30,3 @@ services:
       - traefik.http.middlewares.redis-header.headers.customrequestheaders.X-Service-Token=${ServiceToken}
 
       - traefik.http.services.redis-manager.loadbalancer.server.port=7843
-    networks:
-      - public-proxy
-
-networks:
-  public-proxy:
-    external: true

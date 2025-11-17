@@ -4,28 +4,27 @@ services:
     restart: unless-stopped
     user: 0:0
     volumes:
-      - "${HOSTING_DIR}/my-route-tracker/dpapi-keys:/dpapi-keys"
-      - "${HOSTING_DIR}/my-route-tracker/data/:/app-data/:ro"
+      - ${HOSTING_DIR}/my-route-tracker/dpapi-keys:/dpapi-keys
+      - ${HOSTING_DIR}/my-route-tracker/data/:/app-data/:ro
     environment:
-      Secrets_File: "/app-data/secrets.json"
+      Secrets_File: /app-data/secrets.json
       APP_AppPathPrefix: /my-tracker
-      APP_AppOptions__MongoDbConnection: "${MongoDbConnection}"
-      APP_AppOptions__DatabaseName: "${DatabaseName}"
+      APP_AppOptions__MongoDbConnection: ${MongoDbConnection}
+      APP_AppOptions__DatabaseName: ${DatabaseName}
     labels:
-      - "traefik.docker.network=public-proxy"
-      - "traefik.enable=true"
-      - "traefik.http.routers.my-route-tracker.entrypoints=websecured"
-      - "traefik.http.routers.my-route-tracker.rule=(Host(`offsite.apogee-dev.com`) || Host(`offsite.internal.apogee-dev.com`)) && PathPrefix(`/my-tracker`)"
-      - "traefik.http.routers.my-route-tracker.middlewares=default-compress@file,remove-prefix@file"
-      - "traefik.http.routers.my-route-tracker.tls=true"
-      - "traefik.http.routers.my-route-tracker.tls.domains[0].main=offsite.apogee-dev.com"
-      - "traefik.http.routers.my-route-tracker.tls.domains[1].main=offsite.internal.apogee-dev.com"
-      - "traefik.http.routers.my-route-tracker.service=my-route-tracker"
-
-      - "traefik.http.services.my-route-tracker.loadbalancer.server.port=5000"
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
+      - traefik.http.routers.my-route-tracker.entrypoints=websecured
+      - traefik.http.routers.my-route-tracker.rule=(Host(`offsite.apogee-dev.com`)
+        || Host(`offsite.internal.apogee-dev.com`)) && PathPrefix(`/my-tracker`)
+      - traefik.http.routers.my-route-tracker.middlewares=default-compress@file,remove-prefix@file
+      - traefik.http.routers.my-route-tracker.tls=true
+      - traefik.http.routers.my-route-tracker.tls.domains[0].main=offsite.apogee-dev.com
+      - traefik.http.routers.my-route-tracker.tls.domains[1].main=offsite.internal.apogee-dev.com
+      - traefik.http.routers.my-route-tracker.service=my-route-tracker
+      - traefik.http.services.my-route-tracker.loadbalancer.server.port=5000
     networks:
       - public-proxy
-
 networks:
   public-proxy:
     external: true
