@@ -34,7 +34,9 @@ services:
       - traefik.http.routers.webdb-app.middlewares=webdb-header,fwdauth-global@file
       - "traefik.http.routers.webdb-app.service=webdb-app"
       - traefik.http.routers.webdb-app.tls=true
+      - traefik.http.routers.webdb-app.tls.certResolver=dns_route53
       - traefik.http.routers.webdb-app.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.webdb-app.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.middlewares.webdb-header.headers.customrequestheaders.X-Service-Token=${WebDBToken}
 
@@ -42,4 +44,3 @@ services:
     container_name: webdb
     environment:
       PROTECTED_MODE: false
-

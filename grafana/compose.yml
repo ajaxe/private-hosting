@@ -23,7 +23,9 @@ services:
       - traefik.http.routers.grafana.middlewares=graf-header,default-compress@file,fwdauth-global@file
       - traefik.http.routers.grafana.service=grafana
       - traefik.http.routers.grafana.tls=true
-      - traefik.http.routers.grafana.tls.domains[0].main=grafana.internal.apogee-dev.com
+      - traefik.http.routers.grafana.tls.certResolver=dns_route53
+      - traefik.http.routers.grafana.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.grafana.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.middlewares.graf-header.headers.customrequestheaders.X-Service-Token=${GrafanaServiceToken}
 
@@ -70,14 +72,14 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
-    command: ["-config.file=/etc/tempo.yaml"]
+    command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ${HOSTING_DIR}/grafana/configs/tempo.yaml:/etc/tempo.yaml
       - ${HOSTING_DIR}/grafana/tempo-data:/var/tempo
     ports:
-      - "4317"  # OTLP gRPC
-      - "4318"  # OTLP HTTP
-      - "3200"  # Tempo API
+      - "4317" # OTLP gRPC
+      - "4318" # OTLP HTTP
+      - "3200" # Tempo API
   prometheus:
     extends:
       file: ../compose.base.yml
@@ -105,7 +107,9 @@ services:
       - traefik.http.routers.prometheus.middlewares=header-prom,default-compress@file,fwdauth-global@file
       - traefik.http.routers.prometheus.service=prometheus
       - traefik.http.routers.prometheus.tls=true
-      - traefik.http.routers.prometheus.tls.domains[0].main=prometheus.internal.apogee-dev.com
+      - traefik.http.routers.prometheus.tls.certResolver=dns_route53
+      - traefik.http.routers.prometheus.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.prometheus.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.middlewares.header-prom.headers.customrequestheaders.X-Service-Token=${PrometheusServiceToken}
 
@@ -140,7 +144,9 @@ services:
       - traefik.http.routers.cadvisor.middlewares=default-compress@file # ,internal-auth
       - traefik.http.routers.cadvisor.service=cadvisor
       - traefik.http.routers.cadvisor.tls=true
-      - traefik.http.routers.cadvisor.tls.domains[0].main=cadvisor.internal.apogee-dev.com
+      - traefik.http.routers.cadvisor.tls.certResolver=dns_route53
+      - traefik.http.routers.cadvisor.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.cadvisor.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.services.cadvisor.loadbalancer.server.port=8080
 networks: {}
