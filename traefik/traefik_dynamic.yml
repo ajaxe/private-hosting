@@ -83,6 +83,11 @@ tls:
         resolver: default
         domain:
           main: apogee-dev.com
+    internal:
+      defaultGeneratedCert:
+        resolver: dns_route53
+        domain:
+          main: internal.apogee-dev.com
 
   options:
     default:
@@ -95,9 +100,3 @@ tls:
     no-sni-strict:
       sniStrict: false
       minVersion: VersionTLS12
-
-  certificates:
-    - certFile: /local_ssl_certs/dockerhost.local.pem
-      keyFile: /local_ssl_certs/dockerhost.local-key.pem
-    - certFile: /local_ssl_certs/_wildcard.internal.apogee-dev.com.pem
-      keyFile: /local_ssl_certs/_wildcard.internal.apogee-dev.com-key.pem

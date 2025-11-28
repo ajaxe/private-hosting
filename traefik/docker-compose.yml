@@ -23,11 +23,16 @@ services:
       - "proxy.internal.apogee-dev.com:192.168.0.200"
     environment:
       - OTEL_PROPAGATORS=tracecontext,baggage,jaeger
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_HOSTED_ZONE_ID=${AWS_HOSTED_ZONE_ID}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
       - ${HOSTING_DIR}/traefik/traefik.yml:/traefik.yml
       - ${HOSTING_DIR}/traefik/traefik_dynamic.yml:/traefik_dynamic.yml
       - ${HOSTING_DIR}/traefik/acme.json:/acme.json
+      - ${HOSTING_DIR}/traefik/acme-internal.json:/acme-internal.json
       - ${HOSTING_DIR}/htpasswd:/htpasswd
       - ${HOSTING_DIR}/htpasswd.api:/htpasswd.api
       - ${HOSTING_DIR}/local_ssl_certs:/local_ssl_certs

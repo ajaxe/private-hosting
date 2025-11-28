@@ -68,3 +68,15 @@ certificatesResolvers:
       storage: acme.json
       httpChallenge:
         entryPoint: web
+
+  dns_route53:
+    acme:
+      email: asharma.domain@gmail.com
+      storage: acme-internal.json
+      dnsChallenge:
+        provider: route53
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+        propagation:
+            delaybeforechecks: 60
