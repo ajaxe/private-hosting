@@ -1,0 +1,40 @@
+include:
+  - path: ../compose.networks.yml
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    container_name: homepage
+    environment:
+      - HOMEPAGE_ALLOWED_HOSTS=home.internal.apogee-dev.com
+      - LOG_TARGETS=stdout
+      - HOMEPAGE_VAR_PORTAINER_KEY=${PORTAINER_ACCESS_KEY}
+      - HOMEPAGE_VAR_GRAFANA_KEY=${GRAFANA_ACCESS_TOKEN}
+    volumes:
+      - ./config:/app/config # Ensure this directory exists
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dockge_caddy_network
+      - public-proxy
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    labels:
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
+      # internal
+      - traefik.http.routers.homepage.entrypoints=websecured
+      - traefik.http.routers.homepage.rule=Host(`home.internal.apogee-dev.com`)
+      - traefik.http.routers.homepage.priority=50
+      - traefik.http.routers.homepage.middlewares=remove-prefix@file
+      - traefik.http.routers.homepage.service=homepage
+      - traefik.http.routers.homepage.tls=true
+      - traefik.http.routers.homepage.tls.certResolver=dns_route53
+      - traefik.http.routers.homepage.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.homepage.tls.domains[0].sans=internal.apogee-dev.com
+
+      # service definition
+      - traefik.http.services.homepage.loadbalancer.server.port=3000
