@@ -1,25 +1,38 @@
 - Apps:
+    - Public Homepage:
+        icon: https://www.apogee-dev.com/A_logo_v2.svg
+        href: https://www.apogee-dev.com
+        description: Developer Profile
+    - Infisical Secrets Server:
+        icon: infisical.png
+        href: https://secrets.internal.apogee-dev.com
+        description: Infisical Secrets Server
+
     - Identity Server:
-        icon: mdi-shield-key
+        icon: https://idsrv-1.apogee-dev.com/A_logo_v2.svg
         href: https://idsrv-1.apogee-dev.com
-        description: Auth Provider
+        description: OIDC Auth Provider
     - Proxy Auth Manager:
-        icon: mdi-arrow-decision
+        icon: https://fwd-auth-manager.internal.apogee-dev.com/web/Traefik_auth_manager.png
         href: https://fwd-auth-manager.internal.apogee-dev.com/home
-        description: Auth Provider
+        description: Forward authentication manager for local Traefik instance.
     - Minecraft Manager:
         icon: minecraft.png
         href: https://mc-manager.internal.apogee-dev.com
-        description: Game Server Manager
+        description: minecraft Server Manager
     - Webhook Tester:
         icon: webhook.png
         href: https://offsite.apogee-dev.com/webhook-tester
         description: Webhook Debugger
+    - Colloquy:
+        icon: https://colloquy.apogee-dev.com/app-logo-128x128.png
+        href: https://colloquy.apogee-dev.com
+        description: Manage communication across platforms.
 
 - Infrastructure:
     - Traefik:
         icon: traefik.png
-        href: https://proxy.internal.apogee-dev.com:8080
+        href: http://proxy.internal.apogee-dev.com:8080
         description: Reverse Proxy
         widget:
           type: traefik

@@ -1,0 +1,101 @@
+include:
+  - path: ../compose.networks.yml
+
+services:
+  infisical:
+    image: infisical/infisical:latest-postgres
+    container_name: infisical-backend
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    depends_on:
+      database:
+        condition: service_healthy # <--- WAITS FOR DB TO BE READY
+      redis:
+        condition: service_started
+    environment:
+      # General Configuration
+      NODE_ENV: production
+      # Generate these keys using `openssl rand -hex 16`
+      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY}
+      # Generate this secret using `openssl rand -base64 32`
+      AUTH_SECRET: ${INFISICAL_AUTH_SECRET}
+      # Enable Debug Logging
+      LOG_LEVEL: debug
+
+      # URL Configuration
+      SITE_URL: https://secrets.internal.apogee-dev.com
+
+      # Database & Redis Connection
+      DB_CONNECTION_URI: postgres://${INFISICAL_DB_USER}:${INFISICAL_DB_PASSWORD}@infisical-db:5432/${INFISICAL_DB_NAME}
+      REDIS_URL: redis://redis:6379
+      # Email / SMTP (Optional but recommended for invites/recovery)
+      # SMTP_HOST: ${SMTP_HOST}
+      # SMTP_PORT: ${SMTP_PORT}
+      # SMTP_USERNAME: ${SMTP_USERNAME}
+      # SMTP_PASSWORD: ${SMTP_PASSWORD}
+      # SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
+    volumes:
+      - ${HOSTING_DIR}/infisical/app-data:/usr/src/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=public-proxy"
+
+      # Router Configuration
+      - "traefik.http.routers.infisical.rule=Host(`secrets.internal.apogee-dev.com`)"
+      - "traefik.http.routers.infisical.entrypoints=websecured"
+      - "traefik.http.routers.infisical.tls=true"
+      - "traefik.http.routers.infisical.tls.certResolver=dns_route53"
+      - "traefik.http.routers.infisical.tls.domains[0].main=*.internal.apogee-dev.com"
+      - "traefik.http.routers.infisical.tls.domains[0].sans=internal.apogee-dev.com"
+      - "traefik.http.routers.infisical.service=infisical"
+
+      # Middleware (Compression)
+      - "traefik.http.routers.infisical.middlewares=default-compress@file"
+
+      # Service Port (Infisical defaults to 8080)
+      - "traefik.http.services.infisical.loadbalancer.server.port=8080"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  database:
+    image: postgres:16-alpine
+    container_name: infisical-db
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    # Remove public-proxy network for DB isolation if possible, 
+    # but x-base-service adds it by default. 
+    # You can override networks here if you want strict isolation.
+    environment:
+      POSTGRES_USER: ${INFISICAL_DB_USER}
+      POSTGRES_PASSWORD: ${INFISICAL_DB_PASSWORD}
+      POSTGRES_DB: ${INFISICAL_DB_NAME}
+    volumes:
+      - ${HOSTING_DIR}/infisical/storage/postgres:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    # --- HEALTHCHECK ENSURES DB IS READY BEFORE APP STARTS ---
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${INFISICAL_DB_USER} -d ${INFISICAL_DB_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: infisical-redis
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    command: redis-server --appendonly yes
+    volumes:
+      - ${HOSTING_DIR}/infisical/storage/redis:/data
+    deploy:
+      resources:
+        limits:
+          memory: 256m
