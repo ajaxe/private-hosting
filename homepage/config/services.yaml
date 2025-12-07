@@ -3,11 +3,6 @@
         icon: https://www.apogee-dev.com/A_logo_v2.svg
         href: https://www.apogee-dev.com
         description: Developer Profile
-    - Infisical Secrets Server:
-        icon: infisical.png
-        href: https://secrets.internal.apogee-dev.com
-        description: Infisical Secrets Server
-
     - Identity Server:
         icon: https://idsrv-1.apogee-dev.com/A_logo_v2.svg
         href: https://idsrv-1.apogee-dev.com
@@ -78,3 +73,7 @@
         icon: webdb.png
         href: https://webdb.internal.apogee-dev.com
         description: WebDB UI
+    - Infisical Secrets Server:
+        icon: infisical.png
+        href: https://secrets.internal.apogee-dev.com
+        description: Infisical Secrets Server
