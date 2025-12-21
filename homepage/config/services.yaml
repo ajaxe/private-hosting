@@ -32,10 +32,6 @@
         widget:
           type: traefik
           url: http://reverse-proxy:8080
-    - Dockge:
-        icon: dockge.png
-        href: https://dockge.internal.apogee-dev.com
-        description: Stack Manager
     - Portainer:
         icon: portainer.png
         href: https://portainer.internal.apogee-dev.com:3000
@@ -45,6 +41,10 @@
           url: https://portainer:9443 # Standard secure port for Portainer
           env: 3 # Usually 'local' is env 1 or 2, check your setup
           key: "{{HOMEPAGE_VAR_PORTAINER_KEY}}"
+    - Dockge:
+        icon: dockge.png
+        href: https://dockge.internal.apogee-dev.com:3000
+        description: Stack Manager
 - Monitoring:
     - Uptime Kuma:
         icon: uptime-kuma.png
