@@ -1,10 +1,9 @@
-
-
 services:
   nginx:
     image: nginx:alpine
     volumes:
-      - "${HOSTING_DIR}/robotstxt/public:/usr/share/nginx/html:ro"
+      - "./public:/usr/share/nginx/html:ro"
+      - "./nginx.conf:/etc/nginx/conf.d/default.conf:ro"
     restart: unless-stopped
     labels:
       - "traefik.docker.network=public-proxy"
@@ -12,8 +11,8 @@ services:
       - "traefik.http.routers.robotstxt.rule=Path(`/robots.txt`)"
       - "traefik.http.routers.robotstxt.priority=9999"
       - "traefik.http.routers.robotstxt.entrypoints=web,websecured"
-      - "traefik.http.routers.robotstxt.tls.domains[0].main=offsite.apogee-dev.com"
-      - "traefik.http.routers.robotstxt.tls.domains[1].main=93f2917home.apogee-dev.com"
+      - "traefik.http.routers.robotstxt.tls.domains[0].main=*.apogee-dev.com"
+      - "traefik.http.routers.robotstxt.tls.domains[0].sans=apogee-dev.com"
       - "traefik.http.routers.robotstxt.tls.certResolver=default"
       - "traefik.http.routers.robotstxt.service=robotstxt"
       - "traefik.http.services.robotstxt.loadbalancer.server.port=80"
