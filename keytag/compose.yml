@@ -27,6 +27,12 @@ services:
       - traefik.http.routers.keytag.tls.domains[0].sans=apogee-dev.com
 
       - traefik.http.services.keytag.loadbalancer.server.port=5000
-      - traefik.http.services.keytag.loadbalancer.healthcheck.path=/healthcheck/ready
+      - traefik.http.services.keytag.loadbalancer.healthcheck.path=/health/ready
     volumes:
       - ${HOSTING_DIR}/keytag/dpapi-keys:/dpapi-keys
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/health/ready || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

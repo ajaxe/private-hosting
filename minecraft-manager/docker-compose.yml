@@ -9,23 +9,27 @@ services:
       service: x-base-service
     environment:
       APP_SERVER_AUTH_TOKEN: ${ServiceToken}
+      APP_SERVER_AUTH_COOKIE_NAME: ${AuthCookieName}
     labels:
       - traefik.docker.network=public-proxy
       - traefik.enable=true
       - traefik.http.routers.mc-mgr.entrypoints=websecured
-      - traefik.http.routers.mc-mgr.rule=Host(`mc-manager.internal.apogee-dev.com`)
-        && PathPrefix(`/api/`) && !PathPrefix(`/api/login/check`)
+      - traefik.http.routers.mc-mgr.rule=Host(`mc-manager.internal.apogee-dev.com`) && PathPrefix(`/api/`) && !PathPrefix(`/api/login/check`)
       - traefik.http.routers.mc-mgr.middlewares=mc-mgr-header,default-compress@file,fwdauth-global@file
       - traefik.http.routers.mc-mgr.service=mc-manager
       - traefik.http.routers.mc-mgr.tls=true
-      - traefik.http.routers.mc-mgr.tls.domains[0].main=mc-manager.internal.apogee-dev.com
+      - traefik.http.routers.mc-mgr.tls.certResolver=dns_route53
+      - traefik.http.routers.mc-mgr.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.mc-mgr.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.routers.mc-mgr-unchecked.entrypoints=websecured
       - traefik.http.routers.mc-mgr-unchecked.rule=Host(`mc-manager.internal.apogee-dev.com`)
       - traefik.http.routers.mc-mgr-unchecked.middlewares=default-compress@file
       - traefik.http.routers.mc-mgr-unchecked.service=mc-manager
       - traefik.http.routers.mc-mgr-unchecked.tls=true
-      - traefik.http.routers.mc-mgr-unchecked.tls.domains[0].main=mc-manager.internal.apogee-dev.com
+      - traefik.http.routers.mc-mgr-unchecked.tls.certResolver=dns_route53
+      - traefik.http.routers.mc-mgr-unchecked.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.mc-mgr-unchecked.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.middlewares.mc-mgr-header.headers.customrequestheaders.X-Service-Token=${ServiceToken}
 
