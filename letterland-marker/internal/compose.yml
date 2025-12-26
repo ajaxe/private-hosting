@@ -1,0 +1,55 @@
+include:
+  - path: ../../compose.networks.yml
+services:
+  ocr:
+    image: apogee-dev/letterland-marker-ocr:local
+    container_name: letterland-marker-ocr
+    extends:
+      file: ../../compose.base.yml
+      service: x-base-service
+    volumes:
+      - ./keys:/app/keys
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/keys/service-account.json
+
+  bff:
+    image: apogee-dev/letterland-marker-bff:local
+    container_name: letterland-marker-bff
+    extends:
+      file: ../../compose.base.yml
+      service: x-base-service
+    environment:
+      - OCR_SERVICE_URL=http://ocr:8080
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ll-marker-bff.entrypoints=websecured
+
+      - traefik.http.routers.ll-marker-bff.rule=Host(`letterland-marker.internal.apogee-dev.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.ll-marker-bff.middlewares=remove-prefix
+      - traefik.http.routers.ll-marker-bff.service=ll-marker-bff
+      - traefik.http.routers.ll-marker-bff.tls=true
+      - traefik.http.routers.ll-marker-bff.tls.certResolver=dns_route53
+      - traefik.http.routers.ll-marker-bff.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.ll-marker-bff.tls.domains[0].sans=internal.apogee-dev.com
+
+      - traefik.http.middlewares.remove-prefix.stripPrefix.prefixes=/api
+
+      - traefik.http.services.ll-marker-bff.loadbalancer.server.port=3000
+
+  web:
+    image: apogee-dev/letterland-marker-web:local
+    container_name: letterland-marker-web
+    extends:
+      file: ../../compose.base.yml
+      service: x-base-service
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ll-marker-web.entrypoints=websecured
+      - traefik.http.routers.ll-marker-web.rule=Host(`letterland-marker.internal.apogee-dev.com`)
+      - traefik.http.routers.ll-marker-web.service=ll-marker-web
+      - traefik.http.routers.ll-marker-web.tls=true
+      - traefik.http.routers.ll-marker-web.tls.certResolver=dns_route53
+      - traefik.http.routers.ll-marker-web.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.ll-marker-web.tls.domains[0].sans=internal.apogee-dev.com
+
+      - traefik.http.services.ll-marker-web.loadbalancer.server.port=80
