@@ -1,44 +1,40 @@
 FROM golang:bookworm AS builder
+# Use the official Golang image as the base image for building the application
+RUN apt-get update && apt-get upgrade -y
 
-# Use shallow clone for speed and reproducibility
+RUN mkdir -p /go/src/github.com/ajaxe/mc-configurator
 WORKDIR /go/src/github.com/ajaxe/mc-configurator
-RUN git clone --depth 1 https://github.com/ajaxe/mc-configurator.git . \
-    && go mod download
+RUN git clone https://github.com/ajaxe/mc-configurator.git . \
+    && git pull origin main
+RUN go mod download
 
-RUN go build -o /mc-config .
+RUN go build -o ./tmp/linux/mc-config .
 
-# Switch to Debian Slim for smaller footprint
-FROM debian:bookworm-slim AS final
 
-ARG MinecraftPackage=bedrock-server-1.21.131.1.zip
+FROM ubuntu:25.04 AS final
+
+ARG MinecraftPackage=bedrock-server-1.21.94.2.zip
 ARG InstallFolder=/home/app/minecraft
 
 ENV LD_LIBRARY_PATH=$InstallFolder
 
-# Combine installs and clean up apt cache
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    unzip \
-    curl \
-    libcurl4 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y
 
-RUN groupadd -g 999 minecraft && useradd -r -g minecraft -u 999 minecraft
+RUN mkdir -p $InstallFolder
 
 WORKDIR $InstallFolder
 
+RUN apt-get update -y && apt-get install -y unzip curl
+
 COPY $MinecraftPackage .
-COPY --from=builder /mc-config .
+COPY --from=builder "/go/src/github.com/ajaxe/mc-configurator/tmp/linux/mc-config" .
 COPY runner.sh .
 
-# Unzip, set permissions, and chown in one step
-RUN unzip -q $MinecraftPackage \
-    && rm $MinecraftPackage \
-    && chmod +x bedrock_server runner.sh mc-config \
-    && chown -R minecraft:minecraft $InstallFolder
+RUN unzip $MinecraftPackage && rm $MinecraftPackage && chmod +x bedrock_server \
+    && chmod +x runner.sh && chmod +x mc-config
 
-EXPOSE 19132/udp 25575/tcp
+RUN groupadd -g 999 minecraft && useradd -g minecraft minecraft
 
-# Run as non-root user
-USER minecraft
+EXPOSE 19132 25575
 
 ENTRYPOINT [ "./runner.sh" ]

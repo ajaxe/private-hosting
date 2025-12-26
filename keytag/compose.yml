@@ -13,7 +13,7 @@ services:
       - traefik.docker.network=public-proxy
       - traefik.enable=true
 
-      - traefik.http.routers.keytag-backend-blocker.rule=Host(`keytag.apogee-dev.com`) && Path(`/health/ready`)
+      - traefik.http.routers.keytag-backend-blocker.rule=Host(`keytag.apogee-dev.com`) && Path(`/healthcheck/ready`)
       - traefik.http.routers.keytag-backend-blocker.priority=100
       - traefik.http.routers.keytag-backend-blocker.service=noop@internal
 
