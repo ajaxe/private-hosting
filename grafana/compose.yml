@@ -119,15 +119,21 @@ services:
     user: "0"
     container_name: cadvisor
     command:
-      - --disable_metrics=disk,process
+      # Reduce frequency from 1s to 10s or 15s
       - --housekeeping_interval=15s
+      # Only monitor Docker (ignores raw host cgroups)
+      - --docker_only=true
+      # Disable metrics you likely don't need
+      - --disable_metrics=disk,tcp,udp,percpu
+      # Keep in-memory history minimal (Prometheus will handle the long-term)
+      - --storage_duration=1m
     extends:
       file: ../compose.base.yml
       service: x-base-service
     deploy:
       resources:
         limits:
-          memory: '0'
+          memory: '1g'
           cpus: '0'
     volumes:
       - /:/rootfs:ro

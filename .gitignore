@@ -18,3 +18,4 @@ htpasswd.api
 bedrock-server-*/
 mc-config
 syncenv
+keys/
