@@ -1,9 +1,9 @@
 include:
   - path: ../../compose.networks.yml
 services:
-  ocr:
+  ocr_internal:
     image: apogee-dev/letterland-marker-ocr:local
-    container_name: letterland-marker-ocr
+    container_name: letterland-marker-ocr_internal
     extends:
       file: ../../compose.base.yml
       service: x-base-service
@@ -12,14 +12,15 @@ services:
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/keys/service-account.json
 
-  bff:
+  bff_internal:
     image: apogee-dev/letterland-marker-bff:local
-    container_name: letterland-marker-bff
+    container_name: letterland-marker-bff_internal
     extends:
       file: ../../compose.base.yml
       service: x-base-service
     environment:
-      - OCR_SERVICE_URL=http://ocr:8080
+      - OCR_SERVICE_URL=http://ocr_internal:8080
+      - REDIS_URL=redis://redis-db:6379
     labels:
       - traefik.enable=true
       - traefik.http.routers.ll-marker-bff.entrypoints=websecured
@@ -36,9 +37,9 @@ services:
 
       - traefik.http.services.ll-marker-bff.loadbalancer.server.port=3000
 
-  web:
+  web_internal:
     image: apogee-dev/letterland-marker-web:local
-    container_name: letterland-marker-web
+    container_name: letterland-marker-web_internal
     extends:
       file: ../../compose.base.yml
       service: x-base-service
