@@ -8,7 +8,7 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     user: 0:0
-    command: --admin-password-file '/secrets/portainer-admin-pass' --sslcert /certs/_wildcard.internal.apogee-dev.com.pem --sslkey /certs/_wildcard.internal.apogee-dev.com-key.pem
+    command: --admin-password-file '/secrets/portainer-admin-pass' --tlscert /certs/_wildcard.internal.apogee-dev.com.pem --sslkey /certs/_wildcard.internal.apogee-dev.com-key.pem
     ports:
       - "19443:9443"
     volumes:

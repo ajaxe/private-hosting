@@ -16,7 +16,7 @@ services:
       - ./config:/app/config # Ensure this directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - dockge_caddy_network
+      - dockge-network
       - public-proxy
     deploy:
       resources:

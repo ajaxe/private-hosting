@@ -10,7 +10,7 @@ services:
       - ./caddy_data:/data
       - ${HOSTING_DIR}/local_ssl_certs:/local_ssl_certs
     networks:
-      - caddy_network
+      - dockge-network
 
   dockge:
     # Use the official Dockge image, version 1 is the stable release.
@@ -25,7 +25,7 @@ services:
     environment:
       - DOCKGE_STACKS_DIR=/opt/stacks
     networks:
-      - caddy_network
+      - dockge-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5001"]
       interval: 1m
@@ -43,15 +43,15 @@ services:
     user: 0:0
     container_name: uptime-kuma
     volumes:
-      - ${HOSTING_DIR}/uptime-kuma/data:/app/data
+      - ./uptime-kuma/data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
     deploy:
       resources:
         limits:
           memory: 512m
     networks:
-      - caddy_network
+      - dockge-network
 
 networks:
-  caddy_network:
-    driver: bridge
+  dockge-network:
+    external: true
