@@ -3,6 +3,8 @@ include:
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
+    profiles:
+      - apps
     extends:
       file: ../compose.base.yml
       service: x-base-service

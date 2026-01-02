@@ -1,0 +1,28 @@
+name: home-server
+
+include:
+  # observability
+  - ./loki/docker-compose.yml
+  - ./grafana/compose.yml
+  # database
+  - ./postgres/docker-compose.yml
+  - ./redis/docker-compose.yml
+  - ./mongodb/docker-compose.yml
+  # infrastructure
+  - ./traefik/docker-compose.yml
+  - ./dockge/compose.yml
+  - ./robotstxt/docker-compose.yml
+  - ./private-forward-basic-auth/docker-compose.yml
+  - ./portainer/docker-compose.yml
+  # apps
+  - ./apogee-identity-server/docker-compose.yml
+  - ./colloquy/compose.yaml
+  - ./homepage/compose.yml
+  - ./minecraft-manager/docker-compose.yml
+  - ./letterland-marker/internal/compose.yml
+
+networks:
+  public-proxy:
+    external: true
+  dockge-network:
+    external: true

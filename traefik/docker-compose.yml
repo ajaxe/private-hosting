@@ -6,6 +6,8 @@ services:
   # The reverse proxy service (Traefik)
   reverse-proxy:
     container_name: traefik # not supported in swarm mode
+    profiles:
+      - infrastructure
     image: traefik:v3.5 # The official Traefik docker image
     extends:
       file: ../compose.base.yml
@@ -29,7 +31,7 @@ services:
       - DOCKER_API_VERSION=1.44
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
+      - ${HOME_DIR}/.aws/credentials:/root/.aws/credentials:ro
       - ./traefik.yml:/traefik.yml
       - ./traefik_dynamic.yml:/traefik_dynamic.yml
       - ${HOSTING_DIR}/traefik/acme.json:/acme.json

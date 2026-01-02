@@ -1,8 +1,10 @@
 include:
   - path: ../compose.networks.yml
 services:
-  site:
+  illuminate-site:
     image: apogee-dev/illuminate-support:local
+    profiles:
+      - apps
     extends:
       file: ../compose.base.yml
       service: x-base-service

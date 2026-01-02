@@ -1,14 +1,17 @@
-# enp0s25
+include:
+  - path: ../compose.networks.yml
 services:
   watchyourlan:
     image: aceberg/watchyourlan:v2
     container_name: watchyourlan
     network_mode: "host" # Required for ARP scanning
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
     volumes:
       - ./wyl_data:/data/WatchYourLAN
     environment:
-      - IFACES=enp0s25 # Replace with your interface name
+      - IFACES=enp2s0 # Replace with your interface name
       - TZ=America/New_York # Replace with your timezone
       - TIMEOUT=120 # Scan interval in seconds
       - GUI_PORT=8840 # Port for the web interface
@@ -16,7 +19,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.watchyourlan.entrypoints=websecured
 
-      - traefik.http.routers.watchyourlan.rule=Host(`watchyourlan.internal.apogee-dev.com`)
+      - traefik.http.routers.watchyourlan.rule=Host(`wyl.internal.apogee-dev.com`)
       - traefik.http.routers.watchyourlan.service=watchyourlan
       - traefik.http.routers.watchyourlan.tls=true
       - traefik.http.routers.watchyourlan.tls.certResolver=dns_route53
@@ -24,3 +27,7 @@ services:
       - traefik.http.routers.watchyourlan.tls.domains[0].sans=internal.apogee-dev.com
 
       - traefik.http.services.watchyourlan.loadbalancer.server.port=8840
+    deploy:
+      resources:
+        limits:
+          memory: 512m

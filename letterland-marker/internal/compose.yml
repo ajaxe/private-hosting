@@ -3,6 +3,8 @@ include:
 services:
   ocr_internal:
     image: apogee-dev/letterland-marker-ocr:local
+    profiles:
+      - apps
     container_name: letterland-marker-ocr_internal
     extends:
       file: ../../compose.base.yml
@@ -14,6 +16,8 @@ services:
 
   bff_internal:
     image: apogee-dev/letterland-marker-bff:local
+    profiles:
+      - apps
     container_name: letterland-marker-bff_internal
     extends:
       file: ../../compose.base.yml
@@ -39,6 +43,8 @@ services:
 
   web_internal:
     image: apogee-dev/letterland-marker-web:local
+    profiles:
+      - apps
     container_name: letterland-marker-web_internal
     extends:
       file: ../../compose.base.yml

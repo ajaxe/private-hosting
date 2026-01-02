@@ -3,12 +3,14 @@ include:
 services:
   game-server:
     image: apogee-dev/mc-manager:local
+    profiles:
+      - apps
     container_name: mc-manager
     extends:
       file: ../compose.base.yml
       service: x-base-service
     environment:
-      APP_SERVER_AUTH_TOKEN: ${ServiceToken}
+      APP_SERVER_AUTH_TOKEN: ${MC_MANAGER_SERVICE_TOKEN}
       APP_SERVER_AUTH_COOKIE_NAME: ${AuthCookieName}
     labels:
       - traefik.docker.network=public-proxy
@@ -31,7 +33,7 @@ services:
       - traefik.http.routers.mc-mgr-unchecked.tls.domains[0].main=*.internal.apogee-dev.com
       - traefik.http.routers.mc-mgr-unchecked.tls.domains[0].sans=internal.apogee-dev.com
 
-      - traefik.http.middlewares.mc-mgr-header.headers.customrequestheaders.X-Service-Token=${ServiceToken}
+      - traefik.http.middlewares.mc-mgr-header.headers.customrequestheaders.X-Service-Token=${MC_MANAGER_SERVICE_TOKEN}
 
       - traefik.http.services.mc-manager.loadbalancer.server.port=8000
     volumes:

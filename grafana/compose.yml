@@ -6,6 +6,8 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     image: grafana/grafana:11.1.4
+    profiles:
+      - observability
     user: "0"
     volumes:
       - ${HOSTING_DIR}/grafana/data:/var/lib/grafana
@@ -47,6 +49,8 @@ services:
       service: x-base-service
     image: otel/opentelemetry-collector:0.130.1
     container_name: otel-collector
+    profiles:
+      - observability
     command:
       - --config=/etc/otel-collector-config.yaml
     volumes:
@@ -68,6 +72,8 @@ services:
       - prometheus
   tempo:
     image: grafana/tempo:2.8.0
+    profiles:
+      - observability
     user: "0"
     extends:
       file: ../compose.base.yml
@@ -85,6 +91,8 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     image: prom/prometheus:v3.3.0
+    profiles:
+      - observability
     user: 0:0
     networks:
       - dockge-network
@@ -116,6 +124,8 @@ services:
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
+    profiles:
+      - observability
     user: "0"
     container_name: cadvisor
     command:

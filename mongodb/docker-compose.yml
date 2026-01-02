@@ -3,6 +3,8 @@ include:
 services:
   mongodb:
     image: mongodb/mongodb-community-server:7.0.16-ubuntu2204
+    profiles:
+      - database
     extends:
       file: ../compose.base.yml
       service: x-base-service
@@ -22,6 +24,8 @@ services:
 
   webdb:
     image: webdb/app:latest
+    profiles:
+      - tools
     restart: unless-stopped
     extends:
       file: ../compose.base.yml

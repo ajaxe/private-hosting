@@ -1,8 +1,10 @@
 include:
   - path: ../compose.networks.yml
 services:
-  backend:
+  colloquy-backend:
     image: apogee-dev/colloquy-api:latest
+    profiles:
+      - apps
     # container_name: colloquy-backend
     extends:
       file: ../compose.base.yml
@@ -47,8 +49,10 @@ services:
       # Define the service that points to this container
       - traefik.http.services.colloquy-backend-svc.loadbalancer.server.port=${PORT}
       - traefik.http.services.colloquy-backend-svc.loadbalancer.healthcheck.path=/healthcheck/ready
-  frontend:
+  colloquy-frontend:
     image: apogee-dev/colloquy-ui:latest
+    profiles:
+      - apps
     # container_name: colloquy-frontendbackend
     extends:
       file: ../compose.base.yml

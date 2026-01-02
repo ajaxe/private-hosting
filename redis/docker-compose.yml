@@ -1,8 +1,10 @@
 include:
   - path: ../compose.networks.yml
 services:
-  redis:
+  redis-db:
     image: redis:7-alpine
+    profiles:
+      - database
     extends:
       file: ../compose.base.yml
       service: x-base-service
@@ -10,8 +12,10 @@ services:
       - "6379:6379"
     container_name: redis-db
 
-  redis_manager:
+  redis-manager:
     image: patrikx3/p3x-redis-ui:2025.10.110
+    profiles:
+      - tools
     extends:
       file: ../compose.base.yml
       service: x-base-service
@@ -27,6 +31,6 @@ services:
       - traefik.http.routers.redis-manager.tls.domains[0].main=*.internal.apogee-dev.com
       - traefik.http.routers.redis-manager.service=redis-manager
 
-      - traefik.http.middlewares.redis-header.headers.customrequestheaders.X-Service-Token=${ServiceToken}
+      - traefik.http.middlewares.redis-header.headers.customrequestheaders.X-Service-Token=${REDIS_AUTH_TOKEN}
 
       - traefik.http.services.redis-manager.loadbalancer.server.port=7843

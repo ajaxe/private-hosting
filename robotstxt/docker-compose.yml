@@ -1,6 +1,8 @@
 services:
   nginx:
     image: nginx:alpine
+    profiles:
+      - infrastructure
     volumes:
       - "./public:/usr/share/nginx/html:ro"
       - "./nginx.conf:/etc/nginx/conf.d/default.conf:ro"

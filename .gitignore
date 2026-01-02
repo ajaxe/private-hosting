@@ -20,3 +20,6 @@ mc-config
 syncenv
 keys/
 wyl_data/
+caddy_data/
+dockge-data/
+uptime-kuma/

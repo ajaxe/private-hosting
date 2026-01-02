@@ -3,6 +3,8 @@ include:
 services:
   idsrv:
     image: apogee-dev/identity-provider:local
+    profiles:
+      - apps
     extends:
       file: ../compose.base.yml
       service: x-base-service
@@ -45,8 +47,10 @@ services:
       APP_Serilog__MinimumLevel__Default: Debug
       Secrets_File: /app-data/secrets.json
 
-  spa:
+  idsrv-spa:
     image: apogee-dev/identity-provider-spa:local
+    profiles:
+      - apps
     extends:
       file: ../compose.base.yml
       service: x-base-service

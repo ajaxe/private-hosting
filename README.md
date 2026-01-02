@@ -19,15 +19,7 @@ The `docker-compose.yml` defines the following core services:
 Before running these services, ensure you have:
 
 - **Docker and Docker Compose**: Installed on your host machine.
-- **`.env` file**: A `.env` file must be present in the parent directory (`../.env`) containing the `HOSTING_DIR` environment variable. This variable specifies the base directory on your host where configuration files and persistent data for the services are stored.
-
-  Example `../.env` content:
-
-  ```
-  HOSTING_DIR=/opt/private-hosting
-  ```
-
-  _Note_: The `acme.json` file (used by Traefik for Let's Encrypt certificates) mounted from `${HOSTING_DIR}/traefik/acme.json` must have file permissions set to `600` (read/write only by owner) for Traefik to start correctly.
+- Run _Infisical_ to sync secrets to environment variables. Run _docker compose_ under `infisical` folder. This assumes the server is running in a container and has access to the Infisical CLI.
 
 ## Command
 

@@ -4,6 +4,8 @@ include:
 services:
   forwardauth:
     image: apogee-dev/traefik-forward-auth:local
+    profiles:
+      - infrastructure
     extends:
       file: ../compose.base.yml
       service: x-base-service
@@ -41,8 +43,10 @@ services:
       APP_ConnectionStrings__cache: "${REDIS}"
       APP_OTLP_ENDPOINT_URL: "${OTLP_ENDPOINT_URL}"
 
-  manager:
+  forwardauth-manager:
     image: apogee-dev/traefik-auth-manager:local
+    profiles:
+      - infrastructure
     extends:
       file: ../compose.base.yml
       service: x-base-service

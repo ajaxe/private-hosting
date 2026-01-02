@@ -1,6 +1,8 @@
 services:
   database:
     image: postgres:15-alpine
+    profiles:
+      - database
     container_name: pg-database
     restart: unless-stopped
     ports:
@@ -17,6 +19,8 @@ services:
 
   pgadmin4:
     image: dpage/pgadmin4:latest
+    profiles:
+      - tools
     container_name: pgadmin
     user: 0:0
     restart: unless-stopped

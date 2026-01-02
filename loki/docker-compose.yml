@@ -7,6 +7,8 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
+    profiles:
+      - observability
     user: 0:0
     ports:
       - "0.0.0.0:3100:3100"
@@ -32,6 +34,8 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
+    profiles:
+      - observability
     volumes:
       - ${HOSTING_DIR}/loki/config/promtail-config.yaml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
