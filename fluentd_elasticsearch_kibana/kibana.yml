@@ -1,4 +1,0 @@
-elasticsearch.hosts: "http://efk_stack_elasticsearch:9200"
-server.port: 5601
-server.host: 0.0.0.0
-xpack.security.encryptionKey: txxsJh5AMWCElSBNk5ZWlP1aCKicZiXvpZtxkyv3

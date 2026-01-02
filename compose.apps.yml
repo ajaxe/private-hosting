@@ -7,6 +7,9 @@ include:
   - ./homepage/compose.yml
   - ./minecraft-manager/docker-compose.yml
   - ./letterland-marker/internal/compose.yml
+  - ./static-file-server/docker-compose.yml
+  - ./illuminate-support/docker-compose.yml
+  - ./webhook-tester/docker-compose.yml
 
 networks:
   public-proxy:

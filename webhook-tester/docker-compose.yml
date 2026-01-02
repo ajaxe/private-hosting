@@ -2,18 +2,18 @@
 
 services:
   webapp:
-    image: webhook-tester:local
+    image: apogee-dev/webhook-tester:local
     restart: unless-stopped
     user: 0:0
     volumes:
       - "${HOSTING_DIR}/webhook-tester/dpapi-keys:/dpapi-keys"
     environment:
-      APP_ConnectionStrings__MainStore: "${MainStore}"
+      APP_ConnectionStrings__MainStore: "${WEBHOOK_TESTER_MainStore}"
       APP_AppPathPrefix: /webhook-tester
       APP_Logging__LogLevel__Microsoft.AspNetCore: Information
-      APP_OAuthOptions__Authority: "${Authority}"
-      APP_OAuthOptions__ClientId: "${ClientId}"
-      APP_OAuthOptions__ClientSecret: "${ClientSecret}"
+      APP_OAuthOptions__Authority: "${WEBHOOK_TESTER_Authority}"
+      APP_OAuthOptions__ClientId: "${WEBHOOK_TESTER_ClientId}"
+      APP_OAuthOptions__ClientSecret: "${WEBHOOK_TESTER_ClientSecret}"
     labels:
       - "traefik.docker.network=public-proxy"
       - "traefik.enable=true"
