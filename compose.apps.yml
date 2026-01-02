@@ -10,6 +10,7 @@ include:
   - ./static-file-server/docker-compose.yml
   - ./illuminate-support/docker-compose.yml
   - ./webhook-tester/docker-compose.yml
+  - ./keytag/compose.yml
 
 networks:
   public-proxy:

@@ -7,9 +7,18 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
-    env_file:
-      - .env
-    labels:
+    environment:
+      - APP_OAuthOptions__Authority=${KEYTAG_OIDC_AUTHORITY}
+      - APP_OAuthOptions__ClientId=${KEYTAG_OIDC_CLIENT_ID}
+      - APP_OAuthOptions__ClientSecret=${KEYTAG_OIDC_CLIENT_SECRET}
+      - APP_StorageConfig__RoleArn=${KEYTAG_AWS_ROLE_ARN}
+      - APP_StorageConfig__RoleSessionName=${KEYTAG_AWS_ROLE_SESSION_NAME}
+      - APP_StorageConfig__S3BucketName=${KEYTAG_AWS_S3_BUCKET_NAME}
+      - APP_StorageConfig__S3KeyPrefix=${KEYTAG_AWS_S3_KEY_PREFIX}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - AWS_REGION=${AWS_REGION}
+      - HOSTING_DIR=/home/localadmin/hosting-data
+    labels: 
       - traefik.docker.network=public-proxy
       - traefik.enable=true
 
