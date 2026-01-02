@@ -25,7 +25,7 @@ services:
   webdb:
     image: webdb/app:latest
     profiles:
-      - tools
+      - database
     restart: unless-stopped
     extends:
       file: ../compose.base.yml

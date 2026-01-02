@@ -1,0 +1,12 @@
+name: home-server-observability
+
+include:
+  # observability
+  - ./loki/docker-compose.yml
+  - ./grafana/compose.yml
+
+networks:
+  public-proxy:
+    external: true
+  dockge-network:
+    external: true

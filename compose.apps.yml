@@ -1,0 +1,15 @@
+name: home-server-apps
+
+include:
+  # apps
+  - ./apogee-identity-server/docker-compose.yml
+  - ./colloquy/compose.yaml
+  - ./homepage/compose.yml
+  - ./minecraft-manager/docker-compose.yml
+  - ./letterland-marker/internal/compose.yml
+
+networks:
+  public-proxy:
+    external: true
+  dockge-network:
+    external: true

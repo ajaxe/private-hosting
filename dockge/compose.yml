@@ -25,13 +25,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./dockge-data:/app/data
-      - ${STACK_DIR}:/opt/stacks
+      - ../:/opt/stacks
     environment:
       - DOCKGE_STACKS_DIR=/opt/stacks
     networks:
       - dockge-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5001"]
+      test: ["CMD", "curl", "-f", "http://localhost:5001"]
       interval: 1m
       timeout: 10s
       retries: 3

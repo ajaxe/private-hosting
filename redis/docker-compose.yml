@@ -15,7 +15,7 @@ services:
   redis-manager:
     image: patrikx3/p3x-redis-ui:2025.10.110
     profiles:
-      - tools
+      - database
     extends:
       file: ../compose.base.yml
       service: x-base-service

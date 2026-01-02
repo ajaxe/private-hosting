@@ -1,0 +1,15 @@
+name: home-server-infra
+
+include:
+  # infrastructure
+  - ./traefik/docker-compose.yml
+  - ./dockge/compose.yml
+  - ./robotstxt/docker-compose.yml
+  - ./private-forward-basic-auth/docker-compose.yml
+  - ./portainer/docker-compose.yml
+
+networks:
+  public-proxy:
+    external: true
+  dockge-network:
+    external: true

@@ -75,5 +75,5 @@
         description: WebDB UI
     - Infisical Secrets Server:
         icon: infisical.png
-        href: https://secrets.internal.apogee-dev.com
+        href: https://secrets.internal.apogee-dev.com:9090
         description: Infisical Secrets Server

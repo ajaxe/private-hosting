@@ -1,0 +1,12 @@
+name: home-server-db
+
+include:
+  # database
+  - ./postgres/docker-compose.yml
+  - ./redis/docker-compose.yml
+  - ./mongodb/docker-compose.yml
+networks:
+  public-proxy:
+    external: true
+  dockge-network:
+    external: true
