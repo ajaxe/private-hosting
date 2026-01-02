@@ -18,7 +18,7 @@ ARG InstallFolder=/home/app/minecraft
 
 ENV LD_LIBRARY_PATH=$InstallFolder
 
-RUN apt-get update && apt-get upgrade -y
+RUN apt-get update && apt-get upgrade -y 
 
 RUN mkdir -p $InstallFolder
 
@@ -26,7 +26,10 @@ WORKDIR $InstallFolder
 
 RUN apt-get update -y && apt-get install -y unzip curl
 
-COPY $MinecraftPackage .
+# COPY $MinecraftPackage .
+RUN curl -H "User-Agent: Mozilla/5.0" -L -o $MinecraftPackage \
+    https://www.minecraft.net/bedrockdedicatedserver/bin-linux/$MinecraftPackage
+
 COPY --from=builder "/go/src/github.com/ajaxe/mc-configurator/tmp/linux/mc-config" .
 COPY runner.sh .
 

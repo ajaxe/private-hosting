@@ -12,6 +12,7 @@ services:
     environment:
       APP_SERVER_AUTH_TOKEN: ${MC_MANAGER_SERVICE_TOKEN}
       APP_SERVER_AUTH_COOKIE_NAME: ${AuthCookieName}
+      APP_GAME_SERVER_HOSTING_DIR: ${HOSTING_DIR}
     labels:
       - traefik.docker.network=public-proxy
       - traefik.enable=true
