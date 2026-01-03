@@ -3,6 +3,7 @@ include:
 services:
   mc-manager:
     image: apogee-dev/mc-manager:local
+    user: root
     profiles:
       - apps
     container_name: mc-manager
