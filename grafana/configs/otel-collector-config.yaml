@@ -12,7 +12,7 @@ processors:
   memory_limiter:
     # Set the memory limit to 75% of the container's memory limit
     # For example, if your container has a 1GB limit, set this to 750MiB
-    limit_mib: 750
+    limit_mib: 384
     # How often to check memory usage
     check_interval: 1s
 
