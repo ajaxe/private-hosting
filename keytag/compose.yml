@@ -18,6 +18,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - AWS_REGION=${AWS_REGION}
       - HOSTING_DIR=/home/localadmin/hosting-data
+      - APP_ScannerConfig__Url=http://keytag-scanner:8080
     labels: 
       - traefik.docker.network=public-proxy
       - traefik.enable=true
@@ -45,3 +46,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+  
+  keytag-scanner:
+    image: apogee-dev/keytag-scanner:dev
+    user: 0:0
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
