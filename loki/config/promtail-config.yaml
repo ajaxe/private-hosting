@@ -5,29 +5,39 @@ server:
 clients:
   - url: http://loki:3100/loki/api/v1/push
 
-scrape_configs:
-- job_name: docker
-  docker_sd_configs:
-    - host: unix:///var/run/docker.sock
-      refresh_interval: 5s
-  relabel_configs:
-    # Read all labels from the Docker container and add them as Loki labels
-    - source_labels: ['__meta_docker_container_label_logging_jobname']
-      target_label: 'job'
-    # Fallback to the container name if no specific jobname label is found
-    - source_labels: ['__meta_docker_container_name']
-      regex: '/(.*)'
-      target_label: 'container'
-    # Step 1: Extract the folder name (e.g., "colloquy") from the directory path.
-    # This creates a temporary internal label named `__tmp_stack_name`.
-    - source_labels: ['__meta_docker_container_label_com_docker_compose_project_working_dir']
-      target_label: '__tmp_stack_name'
-      regex: '.*/([^/]+)'
-      replacement: '$1'
+positions:
+  filename: /run/promtail/positions.yaml
 
-    # Step 2: Combine the temporary stack name with the service name.
-    # This takes `__tmp_stack_name` and `com.docker.compose.service`, joins them
-    # with a hyphen, and assigns the result to the final 'app' label.
-    - source_labels: [ '__tmp_stack_name', '__meta_docker_container_label_com_docker_compose_service' ]
-      separator: '-'
-      target_label: 'app'
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      # Read all labels from the Docker container and add them as Loki labels
+      - source_labels: ["__meta_docker_container_label_logging_jobname"]
+        target_label: "job"
+      # Fallback to the container name if no specific jobname label is found
+      - source_labels: ["__meta_docker_container_name"]
+        regex: "/(.*)"
+        target_label: "container"
+      # Step 1: Extract the folder name (e.g., "colloquy") from the directory path.
+      # This creates a temporary internal label named `__tmp_stack_name`.
+      - source_labels:
+          [
+            "__meta_docker_container_label_com_docker_compose_project_working_dir",
+          ]
+        target_label: "__tmp_stack_name"
+        regex: ".*/([^/]+)"
+        replacement: "$1"
+
+      # Step 2: Combine the temporary stack name with the service name.
+      # This takes `__tmp_stack_name` and `com.docker.compose.service`, joins them
+      # with a hyphen, and assigns the result to the final 'app' label.
+      - source_labels:
+          [
+            "__tmp_stack_name",
+            "__meta_docker_container_label_com_docker_compose_service",
+          ]
+        separator: "-"
+        target_label: "app"

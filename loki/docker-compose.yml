@@ -13,7 +13,7 @@ services:
     ports:
       - "0.0.0.0:3100:3100"
     volumes:
-      - ${HOSTING_DIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./config/loki-config.yaml:/etc/loki/loki-config.yaml
       - ${HOSTING_DIR}/loki/data:/data/loki
     command: -config.file=/etc/loki/loki-config.yaml
     deploy:
@@ -37,9 +37,10 @@ services:
     profiles:
       - observability
     volumes:
-      - ${HOSTING_DIR}/loki/config/promtail-config.yaml:/etc/promtail/config.yml
+      - ./config/promtail-config.yaml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers
+      - ${HOSTING_DIR}/loki/promtail-data:/run/promtail
     command: -config.file=/etc/promtail/config.yml
     ports:
       - "9080:9080"

@@ -28,16 +28,24 @@ schema_config:
         prefix: index_
         period: 24h
 
-table_manager:
-  # Enable the deletion of old index files
-  retention_deletes_enabled: true
-  # Set the retention period to match your log data retention
-  retention_period: 1440h
-
 # This section controls limits, including data retention.
 limits_config:
   # How long to keep logs for. 1440h is 60 days (approx. 2 months).
   retention_period: 1440h
+  # Allow querying the full retention period
+  max_query_length: 1440h
+
+querier:
+  max_concurrent: 2
+
+query_range:
+  parallelise_shardable_queries: true
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+        ttl: 24h
 
 # Compactor is responsible for optimizing index and log data.
 compactor:
