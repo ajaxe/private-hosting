@@ -45,6 +45,7 @@ services:
       - ${HOSTING_DIR}/identity-provider/data/:/app-data/:ro
     environment:
       APP_Serilog__MinimumLevel__Default: Debug
+      # APP_Serilog__MinimumLevel__Override__OpenIddict: Verbose
       Secrets_File: /app-data/secrets.json
 
   idsrv-spa:

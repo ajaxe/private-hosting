@@ -19,6 +19,7 @@ services:
       - AWS_REGION=${AWS_REGION}
       - HOSTING_DIR=/home/localadmin/hosting-data
       - APP_ScannerConfig__Url=http://keytag-scanner:8080
+      - APP_ConnectionStrings__Redis=redis-db:6379
     labels: 
       - traefik.docker.network=public-proxy
       - traefik.enable=true
