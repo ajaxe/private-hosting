@@ -22,6 +22,8 @@ down-apps:
 	$(INFISICAL_CMD) --path /apps -- docker compose --profile apps -f compose.apps.yml down 
 
 up-observability:
+	$(INFISICAL_CMD) --path /observability --env=prod -- sh -c 'echo -n "$$PrometheusUptimeApiSecret" > grafana/configs/uptime_pwd.txt'
 	$(INFISICAL_CMD) --path /observability -- docker compose --profile observability -f compose.observability.yml up -d 
 down-observability:
+	rm -f grafana/configs/uptime_pwd.txt
 	$(INFISICAL_CMD) --path /observability -- docker compose --profile observability -f compose.observability.yml down 

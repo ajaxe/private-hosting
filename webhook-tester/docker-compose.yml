@@ -1,7 +1,7 @@
 
 
 services:
-  webapp:
+  webhook-tester:
     image: apogee-dev/webhook-tester:local
     restart: unless-stopped
     user: 0:0

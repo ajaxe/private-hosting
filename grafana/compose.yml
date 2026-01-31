@@ -108,12 +108,15 @@ services:
     user: 0:0
     networks:
       - dockge-network
+      - public-proxy
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=15d
       - --storage.tsdb.wal-compression
+      - --web.enable-lifecycle
     volumes:
       - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./configs/uptime_pwd.txt:/etc/prometheus/secrets/uptime_pwd.txt:ro
       - ${HOSTING_DIR}/grafana/prometheus:/prometheus
     deploy:
       resources:
