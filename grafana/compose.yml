@@ -85,6 +85,10 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     command: [ "-config.file=/etc/tempo.yaml" ]
+    expose:
+      - "4317" # OTLP gRPC
+      - "4318" # OTLP HTTP
+      - "3200" # Tempo API
     volumes:
       - ./configs/tempo.yaml:/etc/tempo.yaml
       - ${HOSTING_DIR}/grafana/tempo-data:/var/tempo
@@ -93,10 +97,7 @@ services:
         limits:
           memory: 1g
           cpus: 1.0
-    ports:
-      - "4317" # OTLP gRPC
-      - "4318" # OTLP HTTP
-      - "3200" # Tempo API
+    
   prometheus:
     extends:
       file: ../compose.base.yml
