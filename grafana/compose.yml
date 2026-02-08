@@ -140,7 +140,10 @@ services:
 
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: ghcr.io/google/cadvisor:0.56.2
+    privileged: true
+    devices:
+      - /dev/kmsg
     profiles:
       - observability
     user: "0"
@@ -168,6 +171,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     restart: unless-stopped
     labels:
       - traefik.docker.network=public-proxy

@@ -20,6 +20,7 @@ services:
       - HOSTING_DIR=/home/localadmin/hosting-data
       - APP_ScannerConfig__Url=http://keytag-scanner:8080
       - APP_ConnectionStrings__Redis=redis-db:6379
+      - APP_OTLP_ENDPOINT_URL=${OTLP_ENDPOINT_URL}
     labels: 
       - traefik.docker.network=public-proxy
       - traefik.enable=true
