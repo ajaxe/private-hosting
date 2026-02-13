@@ -3,6 +3,7 @@ include:
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
+    init: true # Fixes PID 1 zombie process issue
     profiles:
       - apps
     extends:
