@@ -57,7 +57,10 @@ services:
           memory: 512m
     networks:
       - dockge-network
+      - public-proxy
 
 networks:
   dockge-network:
+    external: true
+  public-proxy:
     external: true

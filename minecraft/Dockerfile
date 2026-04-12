@@ -15,7 +15,7 @@ RUN go build -o ./tmp/linux/mc-config .
 # --- STAGE 2: Final Bedrock Server Image ---
 FROM ubuntu:22.04 AS final
 
-ARG MinecraftPackage=bedrock-server-1.21.131.1.zip
+ARG MinecraftPackage=bedrock-server-1.26.0.2.zip
 ARG InstallFolder=/home/app/minecraft
 
 # Avoid prompts during package installation
