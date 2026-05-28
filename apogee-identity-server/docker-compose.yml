@@ -47,6 +47,7 @@ services:
       APP_Serilog__MinimumLevel__Default: Debug
       # APP_Serilog__MinimumLevel__Override__OpenIddict: Verbose
       Secrets_File: /app-data/secrets.json
+      APP_AppOptions__CertFolder: /app-data/certs
 
   idsrv-spa:
     image: apogee-dev/identity-provider-spa:local

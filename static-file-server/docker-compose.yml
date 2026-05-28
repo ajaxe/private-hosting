@@ -43,4 +43,5 @@ services:
       - "traefik.http.routers.www.service=dev-profile"
 
       - "traefik.http.services.dev-profile.loadbalancer.server.port=80"
+      
     
