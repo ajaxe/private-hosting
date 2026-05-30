@@ -14,32 +14,32 @@ services:
     networks:
       - dockge-network
 
-  dockge:
-    # Use the official Dockge image, version 1 is the stable release.
-    image: louislam/dockge:1
-    profiles:
-      - infrastructure
-    container_name: dockge
-    user: "0"
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./dockge-data:/app/data
-      - ../:/opt/stacks
-    environment:
-      - DOCKGE_STACKS_DIR=/opt/stacks
-    networks:
-      - dockge-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001"]
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    deploy:
-      resources:
-        limits:
-          memory: 512m
+  # dockge:
+  #   # Use the official Dockge image, version 1 is the stable release.
+  #   image: louislam/dockge:1
+  #   profiles:
+  #     - infrastructure
+  #   container_name: dockge
+  #   user: "0"
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./dockge-data:/app/data
+  #     - ../:/opt/stacks
+  #   environment:
+  #     - DOCKGE_STACKS_DIR=/opt/stacks
+  #   networks:
+  #     - dockge-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:5001"]
+  #     interval: 1m
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 512m
 
   uptime:
     image: louislam/uptime-kuma:2
@@ -58,6 +58,18 @@ services:
     networks:
       - dockge-network
       - public-proxy
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.www-status.rule=Host(`status.apogee-dev.com`)"
+      - "traefik.http.routers.www-status.entrypoints=websecured"
+      - "traefik.http.routers.www-status.middlewares=default-compress@file"
+      - "traefik.http.routers.www-status.tls=true"
+      - "traefik.http.routers.www-status.tls.certResolver=default"
+      - "traefik.http.routers.www-status.tls.domains[0].main=status.apogee-dev.com"
+      - "traefik.http.routers.www-status.service=www-status"
+
+      - "traefik.http.services.www-status.loadbalancer.server.port=3001"
 
 networks:
   dockge-network:

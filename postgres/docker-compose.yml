@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     profiles:
       - database
     container_name: pg-database
@@ -10,12 +10,15 @@ services:
     networks:
       - public-proxy
     volumes:
-      - "${HOSTING_DIR}/postgres/storage:/var/lib/postgresql/data"
+      # CRITICAL FOR METHOD 1: Point to a new, empty directory path so Postgres 18 can initialize safely
+      - "${HOSTING_DIR}/postgres/storage_v18:/var/lib/postgresql"
       - "${HOSTING_DIR}/postgres/secrets:/dbsecrets:ro"
-      - "${HOSTING_DIR}/postgres/my-postgres.conf:/etc/postgresql/postgresql.conf"
+      # The my-postgres.conf volume mount has been completely removed
     environment:
       POSTGRES_PASSWORD_FILE: "/dbsecrets/root_password"
       POSTGRES_USER_FILE: "/dbsecrets/user"
+    # Configures listen_addresses directly at runtime without a configuration file:
+    command: ["postgres", "-c", "listen_addresses=*"]
 
   pgadmin4:
     image: dpage/pgadmin4:latest
