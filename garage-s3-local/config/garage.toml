@@ -1,0 +1,30 @@
+# config/garage.toml
+replication_factor = 1
+consistency_mode = "consistent"
+
+# Local node layout settings
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+db_engine = "sqlite"
+
+# Set a unique name for this node in your lab network
+node_id = "homelab-garage-node-1"
+
+# Network configuration binding to internal container interfaces
+rpc_bind_addr = "[::]:3901"
+rpc_bind_outgoing = false
+rpc_public_addr = "garage:3901"
+
+[s3_api]
+api_bind_addr = "0.0.0.0:3900"
+s3_region = "us-east-1"
+root_domain = ""
+
+[s3_web]
+bind_addr = "0.0.0.0:3902"
+root_domain = ".web.localhost"
+
+[admin]
+api_bind_addr = "0.0.0.0:3903"
+# The UI will communicate with this token. Generate a real token or use a static one.
+admin_token = "YourAdminSecretTokenLine"

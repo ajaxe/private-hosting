@@ -11,6 +11,7 @@ include:
   - ./illuminate-support/docker-compose.yml
   - ./webhook-tester/docker-compose.yml
   - ./keytag/compose.yml
+  - ./garage-s3-local/compose.yml
 
 networks:
   public-proxy:

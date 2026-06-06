@@ -48,3 +48,30 @@ services:
     container_name: webdb
     environment:
       PROTECTED_MODE: false
+  
+  mongo-exress:
+    image: mongo-express:latest
+    profiles:
+      - database
+    restart: unless-stopped
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    labels:
+      - "traefik.docker.network=public-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.mongo-express.rule=Host(`mge.internal.apogee-dev.com`)"
+      - "traefik.http.routers.mongo-express.entrypoints=websecured"
+      - traefik.http.routers.mongo-express.middlewares=mongo-express-header,fwdauth-global@file
+      - "traefik.http.routers.mongo-express.service=mongo-express"
+      - traefik.http.routers.mongo-express.tls=true
+      - traefik.http.routers.mongo-express.tls.certResolver=dns_route53
+      - traefik.http.routers.mongo-express.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.mongo-express.tls.domains[0].sans=internal.apogee-dev.com
+
+      - traefik.http.middlewares.mongo-express-header.headers.customrequestheaders.X-Service-Token=${WebDBToken}
+
+      - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://${RootUsername}:${RootPassword}@mongo-db:27017/db?ssl=false"

@@ -1,0 +1,59 @@
+include:
+  - path: ../compose.networks.yml
+
+services:
+  garage:
+    image: dxflrs/garage:v2.3.0  # Or use stable 'latest' pin
+    profiles:
+      - apps
+    container_name: garage_engine
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    volumes:
+      - ./config/garage.toml:/etc/garage.toml
+      - ${HOSTING_DIR}/garage/meta:/var/lib/garage/meta
+      - ${HOSTING_DIR}/garage/data:/var/lib/garage/data
+    #ports:
+    #  - "3900:3900" # S3 API endpoint (Point your email app here)
+    #  - "3901:3901" # RPC port (For multi-node clustering)
+    #  - "3903:3903" # Admin REST API (Used by the Web UI)
+    environment:
+      - GARAGE_RPC_SECRET=${GARAGE_RPC_SECRET}
+      - GARAGE_ADMIN_TOKEN=${GARAGE_JWT_SECRET}
+
+  garage-ui:
+    image: noooste/garage-ui:latest
+    profiles:
+      - apps
+    container_name: garage_web_dashboard
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    labels:
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
+      - traefik.http.routers.garage-ui.rule=Host(`garage-ui.internal.apogee-dev.com`)
+      - traefik.http.routers.garage-ui.entrypoints=websecured
+      #- traefik.http.routers.garage-ui.middlewares=garage-ui-header,fwdauth-global@file
+      - traefik.http.routers.garage-ui.service=garage-ui
+      - traefik.http.routers.garage-ui.tls=true
+      - traefik.http.routers.garage-ui.tls.certResolver=dns_route53
+      - traefik.http.routers.garage-ui.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.garage-ui.tls.domains[0].sans=internal.apogee-dev.com
+
+      #- traefik.http.middlewares.garage-ui-header.headers.customrequestheaders.X-Service-Token=${WebDBToken}
+
+      - "traefik.http.services.garage-ui.loadbalancer.server.port=8080"
+    depends_on:
+      - garage
+    volumes:
+      # - ./config/garage.toml:/app/garage.toml:ro # UI reads config to auto-detect paths
+      - ./config/config.yaml:/app/config.yaml
+    environment:
+      - GARAGE_UI_GARAGE_ENDPOINT=http://garage:3900
+      - GARAGE_UI_GARAGE_ADMIN_ENDPOINT=http://garage:3903
+      - GARAGE_RPC_SECRET=${GARAGE_RPC_SECRET}
+      # Adjust UI session security as desired
+      - GARAGE_UI_GARAGE_ADMIN_TOKEN=${GARAGE_JWT_SECRET}
+      - COOKIE_SECURE=true # Set to true if routing through local HTTPS reverse proxy
