@@ -42,7 +42,7 @@ services:
   #         memory: 512m
 
   uptime:
-    image: louislam/uptime-kuma:2
+    image: louislam/uptime-kuma:2.4.0
     profiles:
       - infrastructure
     restart: unless-stopped
