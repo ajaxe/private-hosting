@@ -21,33 +21,6 @@ services:
     environment:
       MONGODB_INITDB_ROOT_USERNAME: ${RootUsername}
       MONGODB_INITDB_ROOT_PASSWORD: ${RootPassword}
-
-  webdb:
-    image: webdb/app:latest
-    profiles:
-      - database
-    restart: unless-stopped
-    extends:
-      file: ../compose.base.yml
-      service: x-base-service
-    labels:
-      - "traefik.docker.network=public-proxy"
-      - "traefik.enable=true"
-      - "traefik.http.routers.webdb-app.rule=Host(`webdb.internal.apogee-dev.com`)"
-      - "traefik.http.routers.webdb-app.entrypoints=websecured"
-      - traefik.http.routers.webdb-app.middlewares=webdb-header,fwdauth-global@file
-      - "traefik.http.routers.webdb-app.service=webdb-app"
-      - traefik.http.routers.webdb-app.tls=true
-      - traefik.http.routers.webdb-app.tls.certResolver=dns_route53
-      - traefik.http.routers.webdb-app.tls.domains[0].main=*.internal.apogee-dev.com
-      - traefik.http.routers.webdb-app.tls.domains[0].sans=internal.apogee-dev.com
-
-      - traefik.http.middlewares.webdb-header.headers.customrequestheaders.X-Service-Token=${WebDBToken}
-
-      - "traefik.http.services.webdb-app.loadbalancer.server.port=22071"
-    container_name: webdb
-    environment:
-      PROTECTED_MODE: false
   
   mongo-exress:
     image: mongo-express:latest
@@ -74,4 +47,4 @@ services:
       - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
     container_name: mongo-express
     environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://${RootUsername}:${RootPassword}@mongo-db:27017/db?ssl=false"
+      ME_CONFIG_MONGODB_URL: "mongodb://${RootUsername}:${RootPassword}@mongodb:27017/admin?ssl=false"
