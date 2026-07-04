@@ -8,7 +8,7 @@ services:
     container_name: traefik # not supported in swarm mode
     profiles:
       - infrastructure
-    image: traefik:v3.5 # The official Traefik docker image
+    image: traefik:v3.7 # The official Traefik docker image
     extends:
       file: ../compose.base.yml
       service: x-base-service

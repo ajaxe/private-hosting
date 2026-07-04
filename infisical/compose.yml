@@ -3,7 +3,7 @@ include:
 
 services:
   infisical:
-    image: infisical/infisical:latest-postgres
+    image: infisical/infisical:v0.161.12
     profiles:
       - stand_alone
     container_name: infisical-backend
