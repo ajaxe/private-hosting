@@ -69,11 +69,12 @@
         href: https://redis.internal.apogee-dev.com
         description: Redis UI
         # No native widget, just a link
-    - WebDB Manager:
-        icon: webdb.png
-        href: https://webdb.internal.apogee-dev.com
-        description: WebDB UI
+    - Mongo Express:
+        icon: mongodb.png
+        href: https://mge.internal.apogee-dev.com
+        description: Mongo Express
     - Infisical Secrets Server:
         icon: infisical.png
         href: https://secrets.internal.apogee-dev.com:9090
         description: Infisical Secrets Server
+
