@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:18-alpine
+    image: paradedb/paradedb:pg18 # postgres:18-alpine
     profiles:
       - database
     container_name: pg-database
@@ -13,12 +13,17 @@ services:
       # CRITICAL FOR METHOD 1: Point to a new, empty directory path so Postgres 18 can initialize safely
       - "${HOSTING_DIR}/postgres/storage_v18:/var/lib/postgresql"
       - "${HOSTING_DIR}/postgres/secrets:/dbsecrets:ro"
-      # The my-postgres.conf volume mount has been completely removed
+      - ./postgresql.conf:/var/lib/postgresql/18/docker/postgresql.conf
     environment:
       POSTGRES_PASSWORD_FILE: "/dbsecrets/root_password"
       POSTGRES_USER_FILE: "/dbsecrets/user"
     # Configures listen_addresses directly at runtime without a configuration file:
-    command: ["postgres", "-c", "listen_addresses=*"]
+    command: [
+      "postgres",
+      "-c", "listen_addresses=*",
+      "-c", "shared_buffers=512MB",
+      "-c", "work_mem=64MB"
+    ]
 
   pgadmin4:
     image: dpage/pgadmin4:latest
