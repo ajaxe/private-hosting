@@ -21,7 +21,20 @@ services:
     environment:
       - GARAGE_RPC_SECRET=${GARAGE_RPC_SECRET}
       - GARAGE_ADMIN_TOKEN=${GARAGE_JWT_SECRET}
+    labels:
+      - traefik.docker.network=public-proxy
+      - traefik.enable=true
 
+      # internal
+      - traefik.http.routers.garage-int.entrypoints=websecured
+      - traefik.http.routers.garage-int.rule=Host(`objstore.internal.apogee-dev.com`)
+      - traefik.http.routers.garage-int.service=garage
+      - traefik.http.routers.garage-int.tls=true
+      - traefik.http.routers.garage-int.tls.certResolver=dns_route53
+      - traefik.http.routers.garage-int.tls.domains[0].main=*.internal.apogee-dev.com
+      - traefik.http.routers.garage-int.tls.domains[0].sans=internal.apogee-dev.com
+
+      - traefik.http.services.garage.loadbalancer.server.port=3900
   garage-ui:
     image: noooste/garage-ui:latest
     profiles:
@@ -53,7 +66,9 @@ services:
     environment:
       - GARAGE_UI_GARAGE_ENDPOINT=http://garage:3900
       - GARAGE_UI_GARAGE_ADMIN_ENDPOINT=http://garage:3903
-      - GARAGE_RPC_SECRET=${GARAGE_RPC_SECRET}
       # Adjust UI session security as desired
       - GARAGE_UI_GARAGE_ADMIN_TOKEN=${GARAGE_JWT_SECRET}
+      - GARAGE_UI_AUTH_ADMIN_ENABLED=true
+      - GARAGE_UI_AUTH_ADMIN_USERNAME=${GARAGE_UI_ADMIN_USERNAME}
+      - GARAGE_UI_AUTH_ADMIN_PASSWORD=${GARAGE_UI_ADMIN_PASSWORD}
       - COOKIE_SECURE=true # Set to true if routing through local HTTPS reverse proxy
