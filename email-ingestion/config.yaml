@@ -1,0 +1,25 @@
+environment: dev
+log_level: "debug"
+server:
+  port: 8080
+database:
+  dsn: ""
+  redis: ""
+
+webhook:
+  allowed_domains: # override them via env vars with space separated values
+    - "localhost"
+    - "internal.some-domain.com"
+
+auth:
+  provider: "oidc"
+  admin: # Admin user credentials for local password auth. Not used if auth.provider is set to "oidc".
+    username:
+    password:
+    jwt_secret:
+    authority:
+    token_ttl_minutes: 1440
+  oidc:
+    authority: https://idsrv-1.apogee-dev.com/
+    client_id: 7ca8b353-d2ed-42ce-abc6-8d32c5bfd4d5
+    jwks_uri: https://idsrv-1.apogee-dev.com/.well-known/jwks

@@ -1,0 +1,83 @@
+include:
+  - path: ../compose.networks.yml
+
+services:
+  # Base template: builds once and tags the image
+  base-app: &base-app
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    image: apogee-dev/email-ingestion:local
+    restart: no
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      EM_DATABASE_DSN: ${EM_DATABASE_DSN}
+      EM_DATABASE_REDIS: ${REDIS}
+      EM_STORAGE_S3_BASE_ENDPOINT: ${EM_STORAGE_S3_BASE_ENDPOINT}
+      EM_STORAGE_S3_BUCKET: ${EM_STORAGE_S3_BUCKET}
+      EM_WEBHOOK_ALLOWED_DOMAINS: ${EM_WEBHOOK_ALLOWED_DOMAINS}
+      EM_ENCRYPTION_KEY: ${EM_ENCRYPTION_KEY}
+      EM_SMTP_MTA_AUTH_TOKEN: ${EM_SMTP_MTA_AUTH_TOKEN}
+
+  # 1. API Service (REST / Webhooks)
+  email-ingest-api:
+    <<: *base-app
+    container_name: email-ingestion-api
+    command: [ "api" ]
+    labels:
+      # --- Traefik Labels for the Backend ---
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+
+      # Create a router to handle API and auth traffic
+      - traefik.http.routers.email-ingestion-api.rule=Host(`email-console.apogee-dev.com`) && (PathPrefix(`/internal/api/`) || PathPrefix(`/app/v1`))
+
+      - traefik.http.routers.email-ingestion-api.service=email-ingestion-api
+      - traefik.http.routers.email-ingestion-api.entrypoints=websecured
+      - traefik.http.routers.email-ingestion-api.tls=true
+      - traefik.http.routers.email-ingestion-api.tls.certresolver=default
+      - traefik.http.routers.email-ingestion-api.tls.domains[0].main=*.apogee-dev.com
+      - traefik.http.routers.email-ingestion-api.tls.domains[0].sans=apogee-dev.com
+
+      # Define the service that points to this container
+      - traefik.http.services.email-ingestion-api.loadbalancer.server.port=8080
+      #- traefik.http.services.email-ingestion-api.loadbalancer.healthcheck.path=/healthcheck/ready
+
+  email-ingest-frontend:
+    <<: *base-app
+    image: apogee-dev/email-ingestion-spa:local
+    container_name: email-ingestion-frontend
+    profiles:
+      - apps
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    volumes:
+      - "./nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+    labels:
+      # --- Traefik Labels for the Frontend ---
+      - traefik.enable=true
+      - traefik.docker.network=public-proxy
+      # Create a router for all other traffic (the SPA)
+      - traefik.http.routers.email-ingestion-frontend.rule=Host(`email-console.apogee-dev.com`)  && !PathPrefix(`/healthcheck/`)
+      - traefik.http.routers.email-ingestion-frontend.service=email-ingestion-frontend
+      - traefik.http.routers.email-ingestion-frontend.entrypoints=websecured
+      - traefik.http.routers.email-ingestion-frontend.tls=true
+      - traefik.http.routers.email-ingestion-frontend.tls.certresolver=default
+      - traefik.http.routers.email-ingestion-frontend.tls.domains[0].main=*.apogee-dev.com
+      - traefik.http.routers.email-ingestion-frontend.tls.domains[0].sans=apogee-dev.com
+      # Define the service that points to this container (Nginx serves on port 80)
+      - traefik.http.services.email-ingestion-frontend.loadbalancer.server.port=80
+
+  # 2. Background Worker (Queue processing, parsing, async jobs)
+  email-ingest-worker:
+    <<: *base-app
+    container_name: email-ingestion-worker
+    command: [ "worker", "--streams", "email,webhook" ]
+
+  # 3. Scheduled Tasks / Cron (Cleanup, retries, stats aggregation)
+  email-ingest-cron:
+    <<: *base-app
+    container_name: email-ingestion-cron
+    command: [ "cron" ]
