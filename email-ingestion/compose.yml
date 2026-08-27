@@ -8,10 +8,12 @@ services:
       file: ../compose.base.yml
       service: x-base-service
     image: apogee-dev/email-ingestion:local
-    restart: no
     volumes:
       - ./config.yaml:/app/config.yaml:ro
     environment:
+      AWS_ACCESS_KEY_ID: ${EM_AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${EM_AWS_SECRET_ACCESS_KEY}
+      EM_ENVIRONMENT: prod
       EM_DATABASE_DSN: ${EM_DATABASE_DSN}
       EM_DATABASE_REDIS: ${REDIS}
       EM_STORAGE_S3_BASE_ENDPOINT: ${EM_STORAGE_S3_BASE_ENDPOINT}
@@ -19,6 +21,8 @@ services:
       EM_WEBHOOK_ALLOWED_DOMAINS: ${EM_WEBHOOK_ALLOWED_DOMAINS}
       EM_ENCRYPTION_KEY: ${EM_ENCRYPTION_KEY}
       EM_SMTP_MTA_AUTH_TOKEN: ${EM_SMTP_MTA_AUTH_TOKEN}
+      EM_SMTP_DOMAIN: ${EM_SMTP_DOMAIN}
+      EM_SMTP_EMAIL_DOMAIN: ${EM_SMTP_EMAIL_DOMAIN}
 
   # 1. API Service (REST / Webhooks)
   email-ingest-api:
@@ -74,7 +78,7 @@ services:
   email-ingest-worker:
     <<: *base-app
     container_name: email-ingestion-worker
-    command: [ "worker", "--streams", "email,webhook" ]
+    command: [ "worker", "--streams", "email,webhook,jobs" ]
 
   # 3. Scheduled Tasks / Cron (Cleanup, retries, stats aggregation)
   email-ingest-cron:

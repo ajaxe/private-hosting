@@ -6,6 +6,26 @@ database:
   dsn: ""
   redis: ""
 
+smtp:
+  listen_address:
+  domain:
+  email_size_max_mb: 25
+  max_line_length: 2048
+  email_domain:
+  read_timeout_seconds: 10
+  write_timeout_seconds: 10
+  api_url:
+  mta_auth_token:
+
+storage:
+  aws_region: "us-east-1" # AWS region where the S3 bucket is located
+  s3_base_endpoint:
+  use_path_style: true # Use path-style addressing for S3 (true for MinIO, false for AWS S3), not used if s3_base_endpoint is empty.
+  s3_bucket:
+  ingestion_prefix: "tmp/" # S3 prefix for storing raw email files before they are processed
+  storage_prefix: "storage/" # S3 prefix for storing processed email files after, converting the raw EML to a json file exclding the attachments.
+  presign_url_ttl_minutes: 15
+
 webhook:
   allowed_domains: # override them via env vars with space separated values
     - "localhost"
