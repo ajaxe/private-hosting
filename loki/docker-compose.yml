@@ -21,6 +21,20 @@ services:
         limits:
           # Adjust these values based on your host's capacity
           memory: 2g
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.loki-push.entrypoints=websecured
+      - traefik.http.routers.loki-push.rule=Host(`loki.apogee-dev.com`) && PathPrefix(`/loki/api/v1/push`)
+      - traefik.http.routers.loki-push.tls=true
+      - traefik.http.routers.loki-push.tls.certresolver=default
+      - traefik.http.routers.loki-push.tls.domains[0].main=*.apogee-dev.com
+      - traefik.http.routers.loki-push.tls.domains[0].sans=apogee-dev.com
+      - traefik.http.routers.loki-push.middlewares=loki-auth
+
+      - "traefik.http.middlewares.loki-auth.basicauth.usersFile=/htpasswd.loki"
+      - "traefik.http.middlewares.loki-auth.basicauth.removeHeader=true"
+
+      - traefik.http.services.loki-push.loadbalancer.server.port=3100
     healthcheck:
       # Loki's health check endpoint is /ready
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]

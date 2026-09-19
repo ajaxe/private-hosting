@@ -34,6 +34,7 @@ services:
       - ${HOME_DIR}/.aws/credentials:/root/.aws/credentials:ro
       - ./traefik.yml:/traefik.yml
       - ./traefik_dynamic.yml:/traefik_dynamic.yml
+      - ${HOSTING_DIR}/htpasswd.loki:/htpasswd.loki
       - ${HOSTING_DIR}/traefik/acme.json:/acme.json
       - ${HOSTING_DIR}/traefik/acme-internal.json:/acme-internal.json
       - ${HOSTING_DIR}/local_ssl_certs:/local_ssl_certs

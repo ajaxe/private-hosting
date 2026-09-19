@@ -24,3 +24,4 @@ caddy_data/
 dockge-data/
 uptime-kuma/
 grafana/configs/uptime_pwd.txt
+minecraft/bot/data
