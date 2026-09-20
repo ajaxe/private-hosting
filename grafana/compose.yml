@@ -141,38 +141,47 @@ services:
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
   cadvisor:
     image: ghcr.io/google/cadvisor:0.56.2
-    privileged: true
-    devices:
-      - /dev/kmsg
     profiles:
       - observability
-    user: "0"
     container_name: cadvisor
+    extends:
+      file: ../compose.base.yml
+      service: x-base-service
+    privileged: false
+    security_opt:
+      - no-new-privileges:true
+    devices:
+      - /dev/kmsg
     command:
       # Reduce frequency from 1s to 10s or 15s
       - --housekeeping_interval=15s
       # Only monitor Docker (ignores raw host cgroups)
       - --docker_only=true
       # Disable metrics you likely don't need
-      - --disable_metrics=disk,tcp,udp,percpu
+      - --disable_metrics=disk,tcp,udp,percpu,,process,sched
       # Keep in-memory history minimal (Prometheus will handle the long-term)
       - --storage_duration=1m
-    extends:
-      file: ../compose.base.yml
-      service: x-base-service
     deploy:
       resources:
         limits:
           memory: '512m'
-          cpus: '0.5'
+          cpus: '0.50'
+        reservations:
+          memory: 128m
+          cpus: '0.10'
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    restart: unless-stopped
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
     labels:
       - traefik.docker.network=public-proxy
       - traefik.enable=true
