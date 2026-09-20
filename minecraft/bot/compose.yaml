@@ -1,0 +1,63 @@
+include:
+  - path: ../../compose.networks.yml
+services:
+  # 1. Vanilla Java Server
+  mc-vanilla:
+    image: itzg/minecraft-server:latest
+    container_name: mc-vanilla
+    extends:
+      file: ../../compose.base.yml
+      service: x-base-service
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER" # requried to run plugins like Geyser and Floodgate
+      VERSION: "26.1.2"
+      MEMORY: "4G"
+      FORCE_GAMEMODE: "true"
+      MODE: "creative"
+      ONLINE_MODE: "false" # Set to true if bot and players use official Mojang accounts
+      OVERRIDE_SERVER_PROPERTIES: "true"
+      DIFFICULTY: "easy"
+      PLUGINS: |
+        https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
+    ports:
+      - "25565:25565/tcp" # Java player port
+    volumes:
+      - ./data:/data
+
+  # 2. Geyser Standalone Bedrock Proxy
+  geyser:
+    build: ./geyser
+    container_name: mc-geyser-proxy
+    extends:
+      file: ../../compose.base.yml
+      service: x-base-service
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    depends_on:
+      - mc-vanilla
+    ports:
+      - "19132:19132/udp" # Bedrock UDP port
+    volumes:
+      - ./geyser-config/:/app/
+      - ./data/plugins/floodgate/key.pem:/app/key.pem
+
+  # 3. Mineflayer AI Bot
+  #mineflayer-bot:
+  #  build: ./bot
+  #  container_name: mc-mineflayer-bot
+  #  depends_on:
+  #    - mc-vanilla
+  #  environment:
+  #    MC_HOST: "mc-vanilla"
+  #    MC_PORT: "25565"
+  #    BOT_USERNAME: "AssistantBot"
+  #  networks:
+  #    - mc-net
+  #  restart: unless-stopped

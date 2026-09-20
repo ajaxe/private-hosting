@@ -1,0 +1,41 @@
+is_dev: false
+server:
+  port: 8000
+  cert_file:
+  key_file:
+  docker_host_url:
+  auth_token:
+  auth_server_enabled: true
+  auth_server_url: https://fwd-auth.internal.apogee-dev.com
+  auth_redirect_path: /login/check
+  auth_introspect_path: /login/introspect
+  auth_cookie_name: .fwd-auth-custom
+  admins: admin,admin2
+database:
+  connection_uri: ""  # runtime override
+  db_name: mc_manager
+game_server:
+  hosting_dir: ""  # runtime override
+  world_dir: /minecraft/worlds
+  image_name: apogee-dev/minecraft:local
+  env_vars:
+    - "MC_GAMEMODE=creative"
+    - "MC_LEVEL_NAME=Easy Diamonds"
+    - "MC_LEVEL_SEED=3057310577815726585"
+    - "MC_ENABLE_RCON=true"
+    - "MC_RCON_PASSWORD=apogee-dev"
+    - "MC_ENABLE_LAN_VISIBILITY=true"
+    - "MC_FORCE_IPV6_DEFAULT_NON_DEFAULT_PORTS=false"
+  volumes:
+    - "${HOSTING_DIR}/minecraft/data/server.properties:/home/app/minecraft/data/server.properties:ro"
+    - "${HOSTING_DIR}/minecraft/data/permissions.json:/home/app/minecraft/permissions.json"
+    - "${HOSTING_DIR}/minecraft/data/allowlist.json:/home/app/minecraft/allowlist.json"
+    - "minecraft-worlds:/home/app/minecraft/worlds"
+  labels:
+    - "traefik.docker.network=public-proxy"
+    - "traefik.enable=true"
+    - "traefik.udp.routers.minecraft.entrypoints=minecraft"
+    - "traefik.udp.routers.minecraft.service=minecraft"
+    - "traefik.udp.services.minecraft.loadbalancer.server.port=19132"
+  networks:
+    - public-proxy

@@ -12,8 +12,9 @@ services:
       service: x-base-service
     environment:
       APP_SERVER_AUTH_TOKEN: ${MC_MANAGER_SERVICE_TOKEN}
-      APP_SERVER_AUTH_COOKIE_NAME: ${AuthCookieName}
+      APP_SERVER_AUTH_COOKIE_NAME: ${MC_AUTH_COOKIE_NAME}
       APP_GAME_SERVER_HOSTING_DIR: ${HOSTING_DIR}
+      APP_DATABASE_CONNECTION_URI: ${MC_DATABASE_URI}
     labels:
       - traefik.docker.network=public-proxy
       - traefik.enable=true
@@ -40,7 +41,7 @@ services:
       - traefik.http.services.mc-manager.loadbalancer.server.port=8000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-      - ${HOSTING_DIR}/minecraft/mc-manager/config.yaml:/home/app/config.yaml:ro
+      - ./config.yaml:/home/app/config.yaml:ro
       - minecraft-worlds:/minecraft/worlds
     deploy:
       resources:

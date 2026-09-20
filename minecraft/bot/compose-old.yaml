@@ -1,0 +1,59 @@
+include:
+  - path: ../../compose.networks.yml
+services:
+  mc-bot:
+    image: apogee-dev/mc-bot:local
+    container_name: mc-bot
+    depends_on:
+      - mc-proxy
+    environment:
+      - PROXY_HOST=0.0.0.0
+      - PROXY_PORT=19132
+      - BDS_HOST=mc-instance
+      - BDS_PORT=19132
+      - BOT_USERNAME=${BOT_USERNAME:-BedrockAIBot}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - BEDROCK_PRIMARY_MODEL=${BEDROCK_PRIMARY_MODEL:-anthropic.claude-3-5-haiku-20241022-v1:0}
+      - BEDROCK_ECONOMIC_MODEL=${BEDROCK_ECONOMIC_MODEL:-amazon.nova-lite-v1:0}
+      - BEDROCK_ACTIVE_PROVIDER=${BEDROCK_ACTIVE_PROVIDER:-amazon_nova}
+      - BEDROCK_FALLBACK_ENABLED=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    #restart: unless-stopped
+  mc-proxy:
+    image: apogee-dev/mc-proxy:local
+    container_name: mc-proxy
+    ports:
+      - "19132:19132/udp"
+    environment:
+      - BDS_HOST=${BDS_HOST:-mc-instance}
+      - BDS_PORT=${BDS_PORT:-19132}
+      - PROXY_HOST=0.0.0.0
+      - PROXY_PORT=19132
+      - BOT_WHITELIST_IPS=127.0.0.1,::1,172.17.0.1,mc-bot
+      - BOT_WHITELIST_UUIDS=bot-uuid-001,bot-uuid-002
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    #restart: unless-stopped
+  mc-instance:
+    image: apogee-dev/minecraft:local
+    container_name: mc-test-instance
+    ports:
+      - "19132:19132/udp"
+    environment:
+    - "MC_GAMEMODE=creative"
+    - "MC_LEVEL_NAME=Easy Diamonds"
+    - "MC_LEVEL_SEED=3057310577815726585"
+    - "MC_ENABLE_RCON=true"
+    - "MC_RCON_PASSWORD=apogee-dev"
+    - "MC_ENABLE_LAN_VISIBILITY=true"
+    - "MC_FORCE_IPV6_DEFAULT_NON_DEFAULT_PORTS=false"
+    - "MC_ONLINE_MODE=false"
+    volumes:
+    - "${HOSTING_DIR}/minecraft/data/server.properties:/home/app/minecraft/data/server.properties:ro"
+    - "${HOSTING_DIR}/minecraft/data/permissions.json:/home/app/minecraft/permissions.json"
+    - "${HOSTING_DIR}/minecraft/data/allowlist.json:/home/app/minecraft/allowlist.json"
+    - "minecraft-worlds:/home/app/minecraft/worlds"
+volumes:
+  minecraft-worlds:
+    external: true
