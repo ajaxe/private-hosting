@@ -1,0 +1,12 @@
+services:
+  vizio-remote:
+    image: apogee-dev/vizio-remote:local
+    profiles:
+      - apps
+    restart: unless-stopped
+    container_name: vizio-remote
+    environment:
+      - REDIS_URL=redis://proxy.internal.apogee-dev.com:6379
+      - NODE_ENV=production
+      - PORT=3001
+    network_mode: "host"

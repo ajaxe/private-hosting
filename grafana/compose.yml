@@ -158,7 +158,7 @@ services:
       # Only monitor Docker (ignores raw host cgroups)
       - --docker_only=true
       # Disable metrics you likely don't need
-      - --disable_metrics=disk,tcp,udp,percpu,,process,sched
+      - --disable_metrics=disk,tcp,udp,percpu,process,sched
       # Keep in-memory history minimal (Prometheus will handle the long-term)
       - --storage_duration=1m
     deploy:

@@ -13,6 +13,7 @@ include:
   - ./keytag/compose.yml
   - ./garage-s3-local/compose.yml
   - ./email-ingestion/compose.yml
+  #- ./vizio-remote/compose.yml
 
 networks:
   public-proxy:

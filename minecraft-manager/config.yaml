@@ -39,3 +39,11 @@ game_server:
     - "traefik.udp.services.minecraft.loadbalancer.server.port=19132"
   networks:
     - public-proxy
+  deploy:
+    resources:
+      limits:
+        memory: "2g"
+        cpus: "2"
+      reservations:
+        memory: "512m"
+        cpus: "1"
