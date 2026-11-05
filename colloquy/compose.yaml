@@ -57,6 +57,9 @@ services:
     extends:
       file: ../compose.base.yml
       service: x-base-service
+    volumes:
+      - "./default.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "/dev/null:/docker-entrypoint.d/10-listen-on-ipv6-by-default.sh:ro"
     labels:
       # --- Traefik Labels for the Frontend ---
       - traefik.enable=true

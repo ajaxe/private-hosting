@@ -11,7 +11,7 @@ db_engine = "sqlite"
 node_id = "homelab-garage-node-1"
 
 # Network configuration binding to internal container interfaces
-rpc_bind_addr = "[::]:3901"
+rpc_bind_addr = "0.0.0.0:3901"
 rpc_bind_outgoing = false
 rpc_public_addr = "garage:3901"
 
