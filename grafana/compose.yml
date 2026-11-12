@@ -117,7 +117,7 @@ services:
       - --web.enable-lifecycle
     volumes:
       - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./configs/uptime_pwd.txt:/etc/prometheus/secrets/uptime_pwd.txt:ro
+      - ${HOSTING_DIR}/grafana/secrets/uptime_pwd.txt:/etc/prometheus/secrets/uptime_pwd.txt:ro
       - ${HOSTING_DIR}/grafana/prometheus:/prometheus
     deploy:
       resources:
